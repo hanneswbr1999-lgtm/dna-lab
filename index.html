@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNA Lab</title>
+<meta name="description" content="Kostenlose DNA-Auswertung für Sport, Ernährung und Gesundheit. Läuft komplett im Browser, deine Daten verlassen dein Gerät nicht.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070D;--bg2:#0B1020;--glass:rgba(255,255,255,.035);--glass2:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);
+  --text:#E6EAF2;--muted:#8E97AB;--faint:#5B647A;
+  --A:#22D3EE;--T:#E879F9;--G:#A3E635;--C:#FBBF24;--coral:#FB7185;--slate:#94A3B8;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --sans:"Inter",system-ui,"Segoe UI",sans-serif;--disp:"Space Grotesk","Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--sans);overflow-x:hidden;
+  background-image:radial-gradient(900px 600px at 85% -10%,rgba(34,211,238,.10),transparent 60%),radial-gradient(800px 600px at -10% 30%,rgba(232,121,249,.08),transparent 60%),
+  linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:auto,auto,44px 44px,44px 44px;background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;z-index:100;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(5,7,13,.6);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:12px}
+.logo{font:700 16px var(--disp);letter-spacing:.06em}
+.logo b{color:var(--A);text-shadow:0 0 14px rgba(34,211,238,.6)}
+.navbtns{display:flex;gap:8px}
+.btn{border:1px solid var(--line);background:var(--glass2);color:var(--text);font:600 13px var(--sans);padding:7px 12px;border-radius:999px;cursor:pointer;transition:all .3s var(--ease);white-space:nowrap}
+.btn:hover{border-color:rgba(34,211,238,.5);box-shadow:0 0 18px rgba(34,211,238,.25)}
+.btn.on{background:var(--A);color:#03141a;border-color:var(--A)}
+@media (max-width:560px){.btn .lbl{display:none}}
+
+/* hero */
+.hero{position:relative;min-height:calc(100vh - 56px);display:grid;grid-template-columns:1.15fr 1fr;align-items:center;gap:24px;padding:32px 0}
+.hero canvas{width:100%;height:min(78vh,720px)}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--A)}
+.bignum{font:700 clamp(64px,11.5vw,156px)/.95 var(--disp);letter-spacing:-.04em;margin:14px 0 6px;
+  background:linear-gradient(100deg,#fff 30%,var(--A) 60%,var(--T));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 30px rgba(34,211,238,.25))}
+.herosub{font:500 clamp(18px,2.2vw,24px) var(--disp);color:var(--text);margin:0}
+.heromuted{color:var(--muted);margin:10px 0 0;max-width:520px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.kpi{padding:12px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);min-width:130px}
+.kpi .k{font-size:12px;color:var(--muted)}
+.kpi .v{font:700 22px var(--disp)}
+.scrollcue{position:absolute;left:0;bottom:18px;font:500 12px var(--mono);color:var(--faint);letter-spacing:.15em}
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;min-height:auto;padding-top:20px}
+  .hero canvas{position:absolute;inset:0;height:100%;opacity:.35;z-index:-1}
+  .scrollcue{display:none}
+}
+
+/* sections */
+section{padding:72px 0 8px}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.sh h2{font:700 clamp(26px,3.4vw,38px)/1.1 var(--disp);letter-spacing:-.02em;margin:6px 0 0}
+.sh p{color:var(--muted);margin:6px 0 0;max-width:560px}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.pad{padding:22px}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* base letters */
+.b{font-family:var(--mono);font-weight:700}
+.bA{color:var(--A);text-shadow:0 0 16px rgba(34,211,238,.55)}.bT{color:var(--T);text-shadow:0 0 16px rgba(232,121,249,.55)}
+.bG{color:var(--G);text-shadow:0 0 16px rgba(163,230,53,.5)}.bC{color:var(--C);text-shadow:0 0 16px rgba(251,191,36,.5)}
+
+/* highlights */
+.hl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.hcard{position:relative;padding:22px;overflow:hidden;transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s}
+.hcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--cc) 50%,transparent);box-shadow:0 0 34px color-mix(in srgb,var(--cc) 22%,transparent)}
+.hcard::before{content:"";position:absolute;inset:-1px -1px auto;height:2px;background:linear-gradient(90deg,transparent,var(--cc),transparent);opacity:.8}
+.hcard .gt{font-size:54px;line-height:1;letter-spacing:.06em}
+.hcard h3{font:700 19px/1.25 var(--disp);margin:14px 0 6px}
+.hcard p{margin:0;color:var(--muted);font-size:14px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.pill{font:600 11.5px var(--sans);padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:rgba(255,255,255,.03)}
+.ev{font:600 11.5px var(--mono);color:var(--muted);display:inline-flex;gap:5px;align-items:center}
+.ev i{width:6px;height:6px;border-radius:50%;background:var(--faint);display:inline-block}
+.ev i.f{background:var(--A);box-shadow:0 0 8px var(--A)}
+.ev.weak{color:var(--C)}
+
+/* sport */
+.sport{display:grid;grid-template-columns:1.1fr 1fr;gap:14px}
+@media (max-width:860px){.sport{grid-template-columns:1fr}}
+.radarbox svg{width:100%;height:auto;display:block}
+.rpoly{transform-origin:center;transform:scale(0);transition:transform 1.1s var(--ease) .2s}
+.in .rpoly{transform:scale(1)}
+.scale{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--A),var(--T));margin:26px 0 8px;box-shadow:0 0 22px rgba(232,121,249,.25)}
+.scale .pin{position:absolute;top:-8px;width:26px;height:26px;border-radius:50%;background:var(--bg);border:3px solid #fff;box-shadow:0 0 18px #fff;transform:translateX(-50%);left:0;transition:left 1.4s var(--ease) .3s}
+.scl{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--muted)}
+.verdict{font:700 26px var(--disp);margin:14px 0 4px}
+.waffle svg{width:100%;max-width:340px;height:auto;display:block}
+.wf use{opacity:0;transition:opacity .4s var(--ease)}
+.in .wf use{opacity:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+/* genome */
+.ideo{overflow-x:auto;padding:10px 4px 4px}
+.ideo svg{display:block;min-width:760px;width:100%;height:auto}
+.mk{cursor:pointer;transition:r .25s var(--ease)}
+.mk:hover{r:8}
+#tip{position:fixed;z-index:80;pointer-events:none;opacity:0;transition:opacity .2s;max-width:260px;padding:10px 12px;border-radius:12px;background:rgba(11,16,32,.92);border:1px solid var(--line);font-size:13px;backdrop-filter:blur(10px)}
+.fp{display:flex;height:34px;border-radius:10px;overflow:hidden;margin:18px 0 12px;border:1px solid var(--line)}
+.fp div{width:0;transition:width 1.2s var(--ease)}
+.fpl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px;font-size:13px;color:var(--muted)}
+.fpl b{color:var(--text);font-family:var(--mono)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media (max-width:860px){.g2{grid-template-columns:1fr}}
+
+/* heatmap */
+.hm{display:grid;grid-template-columns:minmax(120px,1.6fr) repeat(4,1fr);gap:6px;font-size:13px}
+.hm .h{color:var(--muted);font:600 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;text-align:center;padding-bottom:4px}
+.hm .r{display:flex;align-items:center;gap:8px;color:var(--text)}
+.hm .c{height:44px;border-radius:10px;display:grid;place-items:center;font:700 16px var(--mono);border:1px solid var(--line);cursor:pointer;transition:transform .25s var(--ease)}
+.hm .c:hover{transform:scale(1.05)}
+.hm .z{color:var(--faint);font-weight:500;cursor:default}
+
+/* theme cards */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:var(--glass);color:var(--muted);font:600 13px var(--sans);padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .3s var(--ease)}
+.tab.on{color:#05070D;background:var(--tc,#fff);border-color:var(--tc,#fff);box-shadow:0 0 18px color-mix(in srgb,var(--tc,#fff) 45%,transparent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{padding:18px;display:flex;flex-direction:column;gap:8px;border-left:2px solid var(--cc)}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card h4{font:700 16.5px/1.3 var(--disp);margin:0}
+.card .sub{color:var(--faint);font:500 12px var(--mono)}
+.card .gt{font-size:22px;letter-spacing:.08em}
+.card p{margin:0;font-size:14px;color:#C5CBD8}
+.card .tipx{font-size:13px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
+.lv{font:600 11.5px var(--sans);padding:3px 9px;border-radius:999px}
+.lv-plus{color:var(--G);background:rgba(163,230,53,.10)}.lv-watch{color:var(--C);background:rgba(251,191,36,.12)}
+.lv-type{color:var(--A);background:rgba(34,211,238,.10)}.lv-neutral{color:var(--muted);background:rgba(255,255,255,.05)}
+.missing{color:var(--faint);font-size:12.5px;margin-top:14px}
+
+/* plan */
+.pbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.pbar .sum{color:var(--muted);font-size:13.5px;margin-right:auto}
+.pbar .sum b{color:var(--text)}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.pcol h3{display:flex;align-items:center;gap:8px;font:700 17px var(--disp);margin:0 0 10px}
+.pcol h3 small{font:500 12px var(--mono);color:var(--faint)}
+.pcard{padding:16px;margin-bottom:10px;border-top:2px solid var(--cc)}
+.pcard.basis{border-top-color:rgba(255,255,255,.18);background:rgba(255,255,255,.02)}
+.pcard h4{font:700 15.5px/1.3 var(--disp);margin:0 0 6px}
+.pcard p{margin:0;font-size:13.5px;color:#C5CBD8}
+.pfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;font-size:12px}
+.gtag{font:600 11.5px var(--mono);padding:3px 8px;border-radius:999px;color:var(--cc);background:color-mix(in srgb,var(--cc) 12%,transparent)}
+.btag{font:600 11.5px var(--sans);padding:3px 8px;border-radius:999px;color:var(--muted);background:rgba(255,255,255,.05)}
+body.onlygene .pcard.basis{display:none}
+
+/* explorer */
+.xbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.xbar input,.xbar select{background:var(--glass2);border:1px solid var(--line);color:var(--text);font:500 14px var(--sans);padding:8px 12px;border-radius:10px;outline:none}
+.xbar input{flex:1;min-width:180px}
+.xbar input:focus{border-color:var(--A);box-shadow:0 0 14px rgba(34,211,238,.25)}
+.xbar option{background:#0B1020}
+.tbl{overflow:auto;max-height:560px;border-radius:14px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:880px;font-size:13.5px}
+th{position:sticky;top:0;background:#0B1020;text-align:left;font:600 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.025)}
+td.na{color:var(--faint)}
+
+/* privacy */
+body.privacy .priv{filter:blur(7px);user-select:none}
+body.privacy .privhide{display:none!important}
+
+/* apoe */
+.veil{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+
+footer{padding:56px 0 80px;color:var(--faint);font-size:12.5px;line-height:1.7}
+
+/* showcase */
+#sc{position:fixed;inset:0;z-index:90;background:#020308;display:none;flex-direction:column}
+#sc.open{display:flex}
+.scbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line)}
+.scbar input{background:var(--glass2);border:1px solid var(--line);color:var(--text);font:500 13px var(--sans);padding:6px 10px;border-radius:999px;width:150px}
+.scbar .sp{flex:1}
+.scstage{flex:1;position:relative;overflow:hidden;display:grid;place-items:center}
+.frame{position:absolute;left:50%;top:50%;transform-origin:center;width:1080px;overflow:hidden;background:var(--bg);font-family:var(--disp);color:var(--text);
+  background-image:radial-gradient(900px 700px at 90% 0%,rgba(34,211,238,.16),transparent 60%),radial-gradient(800px 700px at 0% 100%,rgba(232,121,249,.14),transparent 60%),
+  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:auto,auto,54px 54px,54px 54px}
+.frame svg{width:100%;height:auto;display:block}
+.fin{position:absolute;display:flex;flex-direction:column;justify-content:center}
+.fh{font:700 76px/1.05 var(--disp);letter-spacing:-.03em;margin:0}
+.fl{font:500 42px/1.3 var(--disp);color:#C5CBD8;margin:0}
+.fsmall{position:absolute;font:500 26px var(--mono);color:var(--faint);letter-spacing:.04em}
+.fhandle{position:absolute;font:700 30px var(--mono);color:var(--A);text-shadow:0 0 16px rgba(34,211,238,.5)}
+.safe{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,rgba(251,113,133,.18) 0 14px,rgba(251,113,133,.08) 14px 28px);border:2px dashed rgba(251,113,133,.6);pointer-events:none;display:none}
+.showsafe .safe{display:block}
+.scnav{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font:500 12px var(--mono);color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.rpoly{transform:none}}
+/* upload screen */
+body:not(.ready) nav, body:not(.ready) .wrap{display:none}
+body.ready #up{display:none}
+#up{min-height:100vh;display:grid;place-items:center;position:relative;padding:32px 16px;overflow:hidden}
+#upHelix{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.upbox{position:relative;max-width:560px;width:100%;text-align:center}
+.upbox h1{font:700 clamp(36px,6vw,64px)/1.02 var(--disp);letter-spacing:-.03em;margin:22px 0 14px}
+.upbox h1 span{color:var(--A);text-shadow:0 0 28px rgba(34,211,238,.55)}
+.uplead{color:#C5CBD8;font-size:16px;margin:0 auto 26px;max-width:480px}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:34px 20px;border-radius:20px;cursor:pointer;
+  border:1.5px dashed rgba(34,211,238,.45);background:rgba(11,16,32,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:all .35s var(--ease)}
+.drop:hover,.drop.over{border-color:var(--A);box-shadow:0 0 40px rgba(34,211,238,.28);transform:translateY(-2px)}
+.drop b{font:700 19px var(--disp)}
+.drop span{color:var(--muted);font-size:13.5px}
+.dropicon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:22px;color:#03141a;background:var(--A);box-shadow:0 0 26px rgba(34,211,238,.6);margin-bottom:6px}
+.upmsg{min-height:22px;margin:14px 0 4px;font:500 14px var(--mono);color:var(--A)}
+.upmsg.err{color:var(--coral);font-family:var(--sans)}
+.trust{font-size:13.5px;color:#C5CBD8;padding:10px 14px;border-radius:12px;background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.22)}
+.trust b{color:var(--G)}
+.provs{color:var(--faint);font-size:12.5px;margin-top:14px}
+.how{margin-top:16px;text-align:left;color:var(--muted);font-size:13.5px;background:rgba(11,16,32,.6);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.how summary{cursor:pointer;color:var(--text);font-weight:600}
+.how p{margin:8px 0 2px}
+.fine{color:var(--faint);font-size:12px;margin-top:16px}
+</style>
+</head>
+<body>
+<div id="up">
+  <canvas id="upHelix" aria-hidden="true"></canvas>
+  <div class="upbox">
+    <div class="logo">DNA<b>//</b>LAB</div>
+    <h1>Was steckt in <span>deiner</span> DNA?</h1>
+    <p class="uplead">Lade die Rohdaten-Datei deines DNA-Tests und sieh in Sekunden, was deine Gene über Sport, Ernährung und Gesundheit verraten.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".zip,.csv,.txt,.tsv,.gz" hidden>
+      <div class="dropicon">⬆</div>
+      <b>Datei hierher ziehen</b>
+      <span>oder klicken zum Auswählen · ZIP, CSV oder TXT</span>
+    </label>
+    <div id="upmsg" class="upmsg" aria-live="polite"></div>
+    <div class="trust">🔒 Deine Datei wird <b>nicht hochgeladen</b>. Die Auswertung läuft komplett in diesem Browser-Tab, auch offline.</div>
+    <div class="provs">Für Rohdaten von MyHeritage · 23andMe · AncestryDNA · FamilyTreeDNA · Living DNA</div>
+    <details class="how">
+      <summary>Wo bekomme ich meine Rohdaten?</summary>
+      <p>Bei deinem DNA-Anbieter in den Konto- bzw. DNA-Einstellungen unter „Rohdaten herunterladen“ (englisch „Download raw data“).
+      Meist kommt der Download-Link nach ein paar Minuten per E-Mail. Die ZIP-Datei kannst du direkt hier hineinziehen.</p>
+    </details>
+    <p class="fine">Keine medizinische Diagnose. Die Ergebnisse zeigen Tendenzen aus Studien.</p>
+  </div>
+</div>
+<nav><div class="wrap">
+  <div class="logo">DNA<b>//</b>LAB</div>
+  <div class="navbtns">
+    <button class="btn" onclick="location.reload()" title="Andere Datei auswerten">↺ <span class="lbl">Neue Datei</span></button>
+    <button class="btn" id="tourBtn" title="Dashboard automatisch durchlaufen (zum Filmen)">▶ <span class="lbl">Tour</span></button>
+    <button class="btn" id="privBtn" title="Rohdaten & Gesundheitsbefunde verbergen">🔒 <span class="lbl">Privat</span></button>
+    <button class="btn" id="scBtn" title="Instagram-Frames">◧ <span class="lbl">Showcase</span></button>
+  </div>
+</div></nav>
+
+<div class="wrap">
+  <header class="hero" id="s-hero">
+    <div>
+      <div class="eyebrow">Genom-Analyse · <span id="prov">Rohdaten</span></div>
+      <div class="bignum num" id="heroNum">0</div>
+      <p class="herosub">Varianten deiner DNA analysiert</p>
+      <p class="heromuted" id="heroMuted"></p>
+      <div class="kpis" id="kpis"></div>
+    </div>
+    <canvas id="helix" aria-label="Animierte DNA-Doppelhelix"></canvas>
+    <div class="scrollcue">SCROLL ↓</div>
+  </header>
+
+  <section id="s-hl">
+    <div class="sh rv"><div><div class="eyebrow">Highlights</div><h2>Was deine Gene über dich sagen</h2></div>
+      <p>Die aussagekräftigsten Befunde auf einen Blick. Jede Karte zeigt, wie gut die Studienlage ist.</p></div>
+    <div class="hl" id="hl"></div>
+  </section>
+
+  <section id="s-sport">
+    <div class="sh rv"><div><div class="eyebrow" style="color:var(--T)">Sport-Profil</div><h2 id="sportTitle"></h2></div>
+      <p>Genetische Tendenzen, keine Messwerte. Training, Schlaf und Ernährung bestimmen deine Leistung weit stärker.</p></div>
+    <div class="sport">
+      <div class="glass pad rv radarbox" id="radar"></div>
+      <div style="display:grid;gap:14px">
+        <div class="glass pad rv">
+          <div class="eyebrow" style="color:var(--muted)">Kraft vs. Ausdauer</div>
+          <div class="scale"><div class="pin" id="pin"></div></div>
+          <div class="scl"><span>◀ AUSDAUER</span><span>POWER ▶</span></div>
+          <div class="verdict" id="verdict"></div>
+          <div class="sub" style="color:var(--muted);font-size:13px" id="scorefrom"></div>
+          <div class="chips" id="sportchips"></div>
+        </div>
+        <div class="glass pad rv waffle" id="waffle"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-plan">
+    <div class="sh rv"><div><div class="eyebrow" style="color:var(--G)">Dein Plan</div><h2>Training & Ernährung, passend zu deinen Genen</h2></div>
+      <p>Genbasierte Empfehlungen sind Feinschliff. Den größten Effekt haben die Basis-Empfehlungen, die laut Studien für alle gelten.</p></div>
+    <div class="pbar rv">
+      <div class="sum" id="psum"></div>
+      <button class="btn" id="pOnly">🧬 Nur genbasiert</button>
+      <button class="btn" id="pTxt">⬇ Plan als Text</button>
+    </div>
+    <div class="plan" id="plan"></div>
+  </section>
+
+  <section id="s-genome">
+    <div class="sh rv"><div><div class="eyebrow" style="color:var(--G)">Dein Genom</div><h2>Alle 24 Chromosomen, jeder Punkt ein Gen</h2></div>
+      <p>Die Leuchtdichte zeigt, wie viele SNPs dein Test pro 5 Mb gemessen hat. Die Punkte markieren die ausgewerteten Gene; fahr mit der Maus darüber.</p></div>
+    <div class="glass pad rv ideo" id="ideo"></div>
+    <div class="g2">
+      <div class="glass pad rv">
+        <div class="eyebrow" style="color:var(--muted)">Genom-Fingerabdruck</div>
+        <div class="fp" id="fp"></div>
+        <div class="fpl" id="fpl"></div>
+      </div>
+      <div class="glass pad rv">
+        <div class="eyebrow" style="color:var(--muted)">Befunde nach Kategorie</div>
+        <div class="hm" id="hm" style="margin-top:16px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-themes">
+    <div class="sh rv"><div><div class="eyebrow" style="color:var(--C)">Themen</div><h2>Alle Befunde im Detail</h2></div>
+      <p>Jede Karte: dein Genotyp, was er bedeutet und was du praktisch daraus machen kannst.</p></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="cards" id="cards"></div>
+    <p class="missing" id="missing"></p>
+  </section>
+
+  <section id="s-x">
+    <div class="sh rv"><div><div class="eyebrow">Daten-Explorer</div><h2>Jeder Marker, jedes Feld</h2></div>
+      <p>Durchsuchbar und filterbar, mit CSV-Export. Enthält alle geprüften Marker, auch die, die nicht auf deinem Chip sind.</p></div>
+    <div class="xbar">
+      <input id="xq" placeholder="Suche: Gen, rsID, Merkmal …">
+      <select id="xc"></select>
+      <select id="xs"><option value="">Alle Status</option><option value="ok">Gefunden</option><option value="missing">Nicht auf Chip</option></select>
+      <button class="btn" id="xcsv">⬇ CSV</button>
+    </div>
+    <div class="tbl"><table><thead><tr><th>Gen</th><th>rsID</th><th>Chr</th><th>Position</th><th>Genotyp</th><th>Ergebnis</th><th>Kategorie</th><th>Evidenz</th></tr></thead><tbody id="xt"></tbody></table></div>
+  </section>
+
+  <section id="s-apoe" class="privhide">
+    <div class="glass pad" id="apoe" style="border-left:2px solid var(--T)"></div>
+  </section>
+
+  <footer>
+    <b style="color:var(--muted)">Wichtig:</b> Die Auswertung basiert auf einzelnen, in Studien untersuchten SNPs aus deinen DNA-Rohdaten (GRCh37, Plus-Strang).
+    Einzelne Gene erklären nur einen kleinen Teil von Leistung und Gesundheit. Training, Schlaf, Ernährung und Umwelt wiegen meist deutlich schwerer.
+    Rohdaten von Consumer-Chips können Fehler enthalten. Dies ist keine medizinische Diagnose. Gesundheitlich relevante Befunde bitte ärztlich bzw. in einer
+    humangenetischen Beratung bestätigen lassen. Deine Datei wird nicht hochgeladen. Die Auswertung läuft nur in diesem Browser-Tab.
+  </footer>
+</div>
+<div id="tip"></div>
+
+<div id="sc">
+  <div class="scbar">
+    <button class="btn on" data-fmt="45">4:5 Feed</button>
+    <button class="btn" data-fmt="916">9:16 Reel</button>
+    <button class="btn" id="safeBtn">Safe Zones</button>
+    <input id="handle" placeholder="@dein_handle">
+    <span class="sp"></span>
+    <button class="btn" id="prevF">←</button><button class="btn" id="nextF">→</button>
+    <button class="btn" id="scClose">✕ Schließen</button>
+  </div>
+  <div class="scstage" id="stage"></div>
+</div>
+
+<script>
+/* ---------- Reading raw data files (everything stays in this browser tab) ---------- */
+const CHR_MAP = {"23":"X","24":"Y","25":"X","26":"MT","XY":"X","M":"MT"};
+async function inflate(data, fmt){
+  const s = new Blob([data]).stream().pipeThrough(new DecompressionStream(fmt));
+  return new Uint8Array(await new Response(s).arrayBuffer());
+}
+async function readFileText(file){
+  const buf = new Uint8Array(await file.arrayBuffer());
+  if (buf[0]===0x50 && buf[1]===0x4B) return unzipText(buf);
+  if (buf[0]===0x1F && buf[1]===0x8B) return new TextDecoder().decode(await inflate(buf,"gzip"));
+  return new TextDecoder().decode(buf);
+}
+// Minimal ZIP reader: takes the largest .csv/.txt/.tsv entry from the central directory
+async function unzipText(buf){
+  const dv = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+  let eocd = -1;
+  for (let i=buf.length-22; i>=Math.max(0,buf.length-65558); i--) if (dv.getUint32(i,true)===0x06054b50){ eocd=i; break; }
+  if (eocd<0) throw new Error("Die ZIP-Datei konnte nicht gelesen werden.");
+  const entries = [];
+  for (let k=0, p=dv.getUint32(eocd+16,true), n=dv.getUint16(eocd+10,true); k<n; k++){
+    const nl=dv.getUint16(p+28,true), xl=dv.getUint16(p+30,true), cl=dv.getUint16(p+32,true);
+    entries.push({ flags:dv.getUint16(p+8,true), method:dv.getUint16(p+10,true), csize:dv.getUint32(p+20,true), usize:dv.getUint32(p+24,true),
+                   off:dv.getUint32(p+42,true), name:new TextDecoder().decode(buf.subarray(p+46,p+46+nl)) });
+    p += 46+nl+xl+cl;
+  }
+  const e = entries.filter(e=>/\.(csv|txt|tsv)$/i.test(e.name) && !e.name.includes("__MACOSX")).sort((a,b)=>b.usize-a.usize)[0];
+  if (!e) throw new Error("In der ZIP-Datei ist keine CSV- oder TXT-Datei.");
+  if (e.flags & 1) throw new Error("Die ZIP-Datei ist mit Passwort geschützt. Bitte entpacke sie zuerst und wähle die CSV/TXT-Datei darin.");
+  const start = e.off + 30 + dv.getUint16(e.off+26,true) + dv.getUint16(e.off+28,true);
+  const data = buf.subarray(start, start+e.csize);
+  if (e.method===0) return new TextDecoder().decode(data);
+  if (e.method===8) return new TextDecoder().decode(await inflate(data,"deflate-raw"));
+  throw new Error("Diese ZIP-Komprimierung wird nicht unterstützt. Bitte entpacke die Datei zuerst.");
+}
+// Understands MyHeritage/FamilyTreeDNA (CSV), 23andMe/Living DNA (TSV, 4 columns) and AncestryDNA (TSV, allele1 + allele2)
+function parseRaw(text, want){
+  const head = text.slice(0,5000);
+  const provider = /MyHeritage/i.test(head)?"MyHeritage" : /23andMe/i.test(head)?"23andMe" : /AncestryDNA/i.test(head)?"AncestryDNA"
+    : /Living ?DNA/i.test(head)?"Living DNA" : /FamilyTreeDNA|FTDNA/i.test(head)?"FamilyTreeDNA" : "DNA";
+  const geno = {}, bins = {}, hom = {A:0,C:0,G:0,T:0};
+  let total = 0, het = 0, nocall = 0, other = 0;
+  for (let i=0, L=text.length; i<L; ){
+    let j = text.indexOf("\n", i); if (j<0) j = L;
+    let line = text.slice(i, j); i = j+1;
+    if (!line || line[0]==="#") continue;
+    if (line.charCodeAt(line.length-1)===13) line = line.slice(0,-1);
+    const f = line.replace(/"/g,"").split(line.includes("\t") ? "\t" : ",").map(s=>s.trim());
+    const pos = +f[2];
+    if (f.length<4 || !pos) continue; // header or broken line
+    let g = (f.length>=5 && f[3].length===1 && f[4].length===1 ? f[3]+f[4] : f[3]).toUpperCase();
+    if (/^0+$/.test(g) || g==="NC" || g==="") g = "--";
+    const c = CHR_MAP[f[1]] || f[1];
+    total++;
+    if (!bins[c]) bins[c] = new Array(52).fill(0);
+    const b = Math.floor(pos/5e6); if (b<52) bins[c][b]++;
+    if (g.includes("-")) nocall++;
+    else if (g.length===2 && g[0]!==g[1]) het++;
+    else if (g.length===2 && g[0] in hom) hom[g[0]]++;
+    else other++;
+    if (want.has(f[0])) geno[f[0]] = {g, c, p:pos};
+  }
+  if (total < 1000) throw new Error("Das sieht nicht nach DNA-Rohdaten aus. Erwartet wird die Rohdaten-Datei deines DNA-Tests (ZIP, CSV oder TXT).");
+  return {geno, bins, hom, het, nocall, other, total, provider, date:new Date().toISOString().slice(0,10)};
+}
+
+const M = [
+ {rs:"rs1815739",gene:"ACTN3",name:"Schnellkraft-Protein (R577X)",cat:"kraft",eff:"C",oth:"T",lv:["type","type","type"],tag:["Ausdauer-Typ (XX)","Mischtyp (RX)","Power-Typ (RR)"],
+  txt:["Kein funktionsfähiges α-Actinin-3 in den schnellen Muskelfasern. Häufiger bei Ausdauerathleten, schnellkräftige Leistungen etwas schwerer.","Ein funktionsfähiges Allel – guter Allrounder, Kraft und Ausdauer gleichermaßen trainierbar.","Zwei funktionsfähige Kopien – typisch für Sprinter und Kraftsportler. Schnelle Fasern sprechen gut auf schweres, explosives Training an."],
+  tip:"Power-Typ: schwere, explosive Reize (3–6 Wdh., Sprints). Ausdauer-Typ: mehr Volumen, kürzere Pausen.",score:[[0,2],[1,1],[2,0]]},
+ {rs:"rs4343",gene:"ACE",name:"ACE I/D (Proxy)",cat:"kraft",eff:"G",oth:"A",lv:["type","type","type"],tag:["I/I – Ausdauer","I/D – Mischtyp","D/D – Kraft"],
+  txt:["I-Allel-Profil: niedrigere ACE-Aktivität, assoziiert mit Ausdauerleistung und Höhenanpassung.","Gemischtes Profil – keine klare Richtung.","D-Allel-Profil: höhere ACE-Aktivität, assoziiert mit Kraft- und Muskelzuwachs bei Krafttraining."],
+  tip:"Proxy-SNP für die ACE-Insertion/Deletion (kein direkter Test).",score:[[0,2],[1,1],[2,0]]},
+ {rs:"rs8192678",gene:"PPARGC1A",name:"Mitochondrien-Biogenese (Gly482Ser)",cat:"kraft",eff:"T",oth:"C",lv:["plus","neutral","neutral"],tag:["Gly/Gly","Gly/Ser","Ser/Ser"],
+  txt:["Gly-Variante: gute Bildung neuer Mitochondrien – vorteilhaft für Ausdaueranpassung.","Eine Ser-Kopie – leicht reduzierte Ausdaueranpassung, gut trainierbar.","Ser/Ser: etwas geringere aerobe Anpassung; Ausdauer braucht konsequentes Grundlagentraining."],
+  tip:"Zone-2-Training ist der stärkste Hebel für PGC-1α – genetikunabhängig.",score:[[0,2],[0,1],[0,0]]},
+ {rs:"rs11549465",gene:"HIF1A",name:"Sauerstoffmangel-Antwort (Pro582Ser)",cat:"kraft",eff:"T",oth:"C",lv:["neutral","type","type"],tag:["Pro/Pro","Pro/Ser","Ser/Ser"],
+  txt:["Häufigster Typ – normale Hypoxie-Antwort.","Ser-Allel: stabileres HIF-1α, assoziiert mit anaerober/kraftorientierter Leistung.","Zwei Ser-Allele: deutlich mit Kraft- und Sprintleistung assoziiert."],tip:""},
+ {rs:"rs2070744",gene:"NOS3",name:"Stickstoffmonoxid / Durchblutung (T-786C)",cat:"kraft",eff:"C",oth:"T",lv:["type","type","type"],tag:["TT – Ausdauer","TC – Mischtyp","CC – Kraft"],
+  txt:["T/T: gute NO-Bildung und Gefäßerweiterung – häufiger bei Ausdauerathleten.","Gemischtes Profil.","C/C: geringere NO-Produktion; häufiger bei Kraft-/Sprintathleten."],
+  tip:"Nitratreiche Lebensmittel (Rote Bete, Rucola) unterstützen NO unabhängig vom Genotyp.",score:[[0,2],[1,1],[2,0]]},
+ {rs:"rs699",gene:"AGT",name:"Angiotensinogen (M235T)",cat:"kraft",eff:"G",oth:"A",lv:["type","type","type"],tag:["MM – Ausdauer","MT – Mischtyp","TT – Kraft"],
+  txt:["M/M: häufiger bei Ausdauersportlern.","Gemischtes Profil.","T/T: assoziiert mit Kraft-/Power-Leistung, aber auch mit etwas höherem Blutdruck."],tip:"",score:[[0,2],[1,1],[2,0]]},
+ {rs:"rs17602729",gene:"AMPD1",name:"Muskel-Energiestoffwechsel (Q12X)",cat:"kraft",eff:"A",oth:"G",lv:["plus","watch","watch"],tag:["Normal","Träger","AMPD-Mangel"],
+  txt:["Normale AMP-Deaminase – kein Hinweis auf verringerte Belastbarkeit.","Ein Defekt-Allel: leicht reduzierte Enzymaktivität, meist unauffällig.","Enzymmangel möglich: frühere Ermüdung, Krämpfe bei intensiver Belastung."],
+  tip:"Bei Trägern: großzügige Pausen bei hochintensiven Intervallen."},
+ {rs:"rs1805086",gene:"MSTN",name:"Myostatin (K153R)",cat:"kraft",eff:"C",oth:"T",lv:["neutral","type","type"],tag:["KK – Normal","KR","RR"],
+  txt:["Normaler Myostatin-Typ (häufigster).","Seltene R-Variante – mit mehr Muskelkraft assoziiert.","Sehr selten – mit mehr Muskelmasse assoziiert."],tip:""},
+
+ {rs:"rs1049434",gene:"SLC16A1 (MCT1)",name:"Laktat-Transport (A1470T)",cat:"kraft",eff:"A",oth:"T",lv:["type","type","type"],tag:["Schneller Abtransport","Mischtyp","Langsamer Abtransport"],
+  txt:["Typ mit schnellerem Laktat-Abtransport – mit Ausdauerleistung assoziiert.","Gemischter Typ: durchschnittlicher Laktat-Abtransport aus dem Muskel.","Langsamerer Laktat-Abtransport – mit Sprint-/Kraftprofil und höherem Laktat assoziiert."],
+  tip:"Laktattoleranz ist sehr gut trainierbar (Schwellen-Intervalle)."},
+ {rs:"rs4880",gene:"SOD2",name:"Antioxidative Abwehr (Val16Ala)",cat:"verletzung",eff:"G",oth:"A",lv:["neutral","neutral","plus"],tag:["Val/Val","Val/Ala","Ala/Ala"],
+  txt:["Langsamerer Transport des Antioxidans-Enzyms in die Mitochondrien.","Gemischter Typ.","Ala/Ala: effizienter Import von SOD2 in die Mitochondrien – gute Abwehr gegen trainingsbedingten oxidativen Stress."],
+  tip:"Keine hochdosierten Antioxidantien direkt nach dem Training – sie bremsen die Anpassung."},
+ {rs:"rs1800629",gene:"TNF",name:"Entzündungsneigung (−308 G/A)",cat:"verletzung",eff:"A",oth:"G",lv:["plus","neutral","watch"],tag:["GG – niedrig","GA","AA – hoch"],
+  txt:["Normale TNF-α-Ausschüttung – Entzündungsreaktionen nach harten Einheiten eher moderat.","Etwas höhere TNF-α-Produktion.","Höhere Entzündungsneigung – Regeneration besonders priorisieren."],tip:""},
+ {rs:"rs1800896",gene:"IL10",name:"Anti-Entzündung (−1082)",cat:"verletzung",eff:"T",oth:"C",lv:["plus","neutral","neutral"],tag:["GG – hoch","AG","AA – niedriger"],
+  txt:["Hohe IL-10-Produktion – starke Entzündungs-Bremse.","Mittlere IL-10-Produktion.","Etwas niedrigere IL-10-Produktion – Entzündungen klingen evtl. langsamer ab."],
+  tip:"Schlaf, Omega-3 und Deload-Wochen unterstützen die Entzündungsregulation."},
+ {rs:"rs12722",gene:"COL5A1",name:"Sehnen-Kollagen",cat:"verletzung",eff:"T",oth:"C",lv:["plus","neutral","watch"],tag:["CC – robust","CT – mittel","TT – erhöht"],
+  txt:["C/C: niedrigeres Risiko für Achillessehnen-Beschwerden.","Ein T-Allel: durchschnittliches Sehnenrisiko.","T/T: steifere Sehnen, erhöhtes Risiko für Achillessehnen- und Bandprobleme – aber oft bessere Laufökonomie."],
+  tip:"Exzentrisches Waden-/Sehnentraining und langsame Belastungssteigerung."},
+ {rs:"rs1800012",gene:"COL1A1",name:"Band-Kollagen (Sp1)",cat:"verletzung",eff:"T",oth:"G",lv:["neutral","plus","plus"],tag:["GG – Standard","GT","TT"],
+  txt:["G/G: Standardtyp, durchschnittliches Risiko für Kreuzband-/Bandverletzungen.","T-Allel: mit geringerem Risiko für Kreuzbandrisse assoziiert.","T/T: deutlich seltener bei Kreuzbandrissen gefunden (aber evtl. geringere Knochendichte)."],tip:""},
+
+ {rs:"rs4680",gene:"COMT",name:"Stress / Dopamin (Val158Met)",cat:"kopf",eff:"A",oth:"G",lv:["type","type","type"],tag:["Warrior (Val/Val)","Mischtyp","Worrier (Met/Met)"],
+  txt:["Schneller Dopaminabbau: belastbar unter Druck, Stress-Situationen (Wettkampf) liegen dir eher.","Ausgewogener Typ.","Langsamer Dopaminabbau: starke Konzentration und Gedächtnis, aber empfindlicher unter akutem Stress."],
+  tip:"Worrier: Wettkampf-Routinen & Atemtechniken helfen besonders."},
+ {rs:"rs6265",gene:"BDNF",name:"Neuroplastizität (Val66Met)",cat:"kopf",eff:"T",oth:"C",lv:["plus","neutral","neutral"],tag:["Val/Val","Val/Met","Met/Met"],
+  txt:["Normale BDNF-Ausschüttung – gute motorische Lernfähigkeit.","Etwas geringere aktivitätsabhängige BDNF-Ausschüttung.","Reduzierte BDNF-Ausschüttung – Bewegung ist hier besonders wertvoll fürs Gehirn."],
+  tip:"Ausdauertraining steigert BDNF unabhängig vom Genotyp."},
+ {rs:"rs2472297",gene:"CYP1A2",name:"Koffein-Abbau",cat:"kopf",eff:"C",oth:"T",lv:["plus","neutral","neutral"],tag:["Schnell (TT)","Erhöht (CT)","Standard (CC)"],
+  txt:["Zwei Allele für beschleunigten Koffein-Abbau – Koffein flutet schnell wieder ab.","Ein Allel für schnelleren Koffein-Abbau.","Kein Allel für beschleunigten Abbau – Koffein wirkt eher länger nach."],
+  tip:"Standard: Koffein 30–60 min vor dem Training, aber nicht nach ca. 14 Uhr."},
+ {rs:"rs5751876",gene:"ADORA2A",name:"Koffein-Empfindlichkeit",cat:"kopf",eff:"T",oth:"C",lv:["plus","neutral","watch"],tag:["Gelassen","Mittel","Sensibel"],
+  txt:["Koffein macht dich wahrscheinlich kaum nervös.","Mittlere Empfindlichkeit.","Höhere Neigung zu Nervosität und Schlafstörungen durch Koffein."],tip:"Sensibel: Koffein-Cutoff 8 h vor dem Schlafen."},
+
+ {rs:"rs17817449",gene:"FTO",name:"Appetit / Körperfett",cat:"ernaehrung",eff:"G",oth:"T",lv:["plus","neutral","watch"],tag:["TT – kein Risiko","GT","GG"],
+  txt:["Kein FTO-Risikoallel.","Ein Risikoallel: ~1,5 kg mehr Körpergewicht im Mittel.","Zwei Risikoallele: stärkeres Hungergefühl, ~3 kg mehr im Mittel."],
+  tip:"Bei Aktiven wird der FTO-Effekt um ~30 % abgeschwächt – Bewegung hebt ihn weitgehend auf."},
+ {rs:"rs17782313",gene:"MC4R",name:"Sättigung",cat:"ernaehrung",eff:"C",oth:"T",lv:["plus","neutral","watch"],tag:["TT","TC","CC"],
+  txt:["Normale Sättigungssignale.","Ein Risikoallel – leicht mehr Snacking-Neigung.","Zwei Risikoallele – geringere Sättigung."],tip:"Proteinreiche, voluminöse Mahlzeiten verbessern die Sättigung."},
+ {rs:"rs1801282",gene:"PPARG",name:"Insulinsensitivität (Pro12Ala)",cat:"ernaehrung",eff:"G",oth:"C",lv:["neutral","plus","plus"],tag:["Pro/Pro","Pro/Ala","Ala/Ala"],
+  txt:["Häufigster Typ.","Ala-Allel: bessere Insulinsensitivität, geringeres Diabetesrisiko.","Ala/Ala: deutlich bessere Insulinsensitivität."],tip:""},
+ {rs:"rs12255372",gene:"TCF7L2",name:"Typ-2-Diabetes-Risiko",cat:"ernaehrung",eff:"T",oth:"G",lv:["plus","neutral","watch"],tag:["GG – kein Risiko","GT","TT"],
+  txt:["Kein TCF7L2-Risikoallel – günstige Insulinausschüttung.","Ein Risikoallel: ~1,4× Diabetesrisiko.","Zwei Risikoallele: ~2× Diabetesrisiko – Bewegung senkt es stark."],
+  tip:"Krafttraining + Ballaststoffe verbessern den Blutzucker unabhängig vom Genotyp."},
+ {rs:"rs174537",gene:"FADS1",name:"Omega-3-Umwandlung",cat:"ernaehrung",eff:"T",oth:"G",lv:["plus","neutral","watch"],tag:["Effizient","Mittel","Langsam"],
+  txt:["Gute Umwandlung pflanzlicher Omega-3 (ALA) in EPA/DHA.","Mittlere Umwandlung.","Geringe Umwandlung – direkte EPA/DHA-Quellen (Fisch, Algenöl) wichtiger."],tip:"Langsam: 2× pro Woche fetter Fisch oder Algenöl."},
+ {rs:"rs5082",gene:"APOA2",name:"Gesättigte Fette",cat:"ernaehrung",eff:"G",oth:"A",lv:["neutral","neutral","watch"],tag:["AA","AG","GG"],
+  txt:["Normale Reaktion auf gesättigte Fette.","Normale Reaktion.","Bei viel gesättigtem Fett stärkere Gewichtszunahme – lieber ungesättigte Fette."],tip:"Gesättigte Fette < 22 g/Tag, Olivenöl & Nüsse bevorzugen."},
+ {rs:"rs4988235",gene:"MCM6/LCT",name:"Laktose-Toleranz",cat:"ernaehrung",eff:"A",oth:"G",lv:["watch","plus","plus"],tag:["Intolerant wahrscheinlich","Tolerant","Tolerant"],
+  txt:["Lactase-Aktivität nimmt im Erwachsenenalter wahrscheinlich ab – Milchprodukte evtl. schlecht verträglich.","Lactase-Persistenz – Milch wird in der Regel vertragen.","Lactase-Persistenz – Milch wird vertragen."],
+  tip:"Whey-Isolat, Skyr und Hartkäse sind auch bei Intoleranz oft gut verträglich."},
+ {rs:"rs2187668",gene:"HLA-DQ2.5",name:"Zöliakie-Veranlagung",cat:"ernaehrung",eff:"T",oth:"C",lv:["plus","watch","watch"],tag:["Nicht DQ2.5","DQ2.5-Träger","DQ2.5 homozygot"],
+  txt:["Kein DQ2.5-Marker – Zöliakie unwahrscheinlicher.","DQ2.5-Träger (~25 % der Europäer). Nur wenige entwickeln Zöliakie.","Erhöhte Veranlagung, Zöliakie dennoch nicht zwingend."],
+  tip:"Nur relevant bei Beschwerden – dann Antikörpertest beim Arzt."},
+ {rs:"rs1801133",gene:"MTHFR",name:"Folat-Stoffwechsel (C677T)",cat:"ernaehrung",eff:"A",oth:"G",lv:["plus","neutral","watch"],tag:["CC – normal","CT – ~65 %","TT – ~30 %"],
+  txt:["Volle MTHFR-Enzymaktivität.","Leicht reduzierte Aktivität – meist unproblematisch.","Deutlich reduzierte Aktivität – Homocystein kann steigen."],
+  tip:"Auf Folat (Blattgemüse) und B12/B2 achten, ggf. Homocystein messen lassen."},
+ {rs:"rs1801131",gene:"MTHFR",name:"Folat-Stoffwechsel (A1298C)",cat:"ernaehrung",eff:"G",oth:"T",lv:["plus","neutral","neutral"],tag:["Normal (1298AA)","1298AC","1298CC"],
+  txt:["Normale Variante.","Leicht reduzierte Aktivität.","Reduzierte Aktivität, alleine meist ohne Folgen."],tip:""},
+ {rs:"rs601338",gene:"FUT2",name:"Vitamin B12 / Darmflora",cat:"ernaehrung",eff:"A",oth:"G",lv:["neutral","neutral","type"],tag:["Secretor","Secretor","Non-Secretor"],
+  txt:["Secretor – typischer B12-Spiegel.","Secretor – typischer B12-Spiegel.","Non-Secretor: tendenziell höhere B12-Spiegel, andere Darmflora."],tip:""},
+ {rs:"rs1229984",gene:"ADH1B",name:"Alkohol-Abbau",cat:"ernaehrung",eff:"T",oth:"C",lv:["neutral","type","type"],tag:["Normal","Schnell","Sehr schnell"],
+  txt:["Typischer europäischer Alkoholabbau.","Schnellerer Abbau zu Acetaldehyd – oft weniger Alkoholkonsum.","Sehr schneller Abbau, häufig Flush-Reaktion."],tip:""},
+ {rs:"rs2231142",gene:"ABCG2",name:"Harnsäure / Gicht",cat:"ernaehrung",eff:"T",oth:"G",lv:["plus","neutral","watch"],tag:["GG","GT","TT"],
+  txt:["Normale Harnsäure-Ausscheidung.","Leicht höhere Harnsäure möglich.","Erhöhtes Gichtrisiko – v. a. bei viel Fleisch, Fruktose, Alkohol."],
+  tip:"Viel trinken, besonders bei hohem Proteinkonsum."},
+ {rs:"rs4588",gene:"GC",name:"Vitamin-D-Transport",cat:"ernaehrung",eff:"T",oth:"G",lv:["plus","neutral","watch"],tag:["GG – normal","GT – leicht niedriger","TT – niedriger"],
+  txt:["Normales Vitamin-D-Bindeprotein – typische Vitamin-D-Spiegel.","Eine GC2-Kopie: tendenziell etwas niedrigere 25(OH)D-Spiegel.","Zwei GC2-Kopien: deutlich häufiger niedrige Vitamin-D-Spiegel."],
+  tip:"Vitamin D (25-OH-D) im Herbst/Winter messen lassen und ggf. supplementieren."},
+ {rs:"rs1801198",gene:"TCN2",name:"Vitamin-B12-Transport (C776G)",cat:"ernaehrung",eff:"G",oth:"C",lv:["plus","neutral","watch"],tag:["CC – normal","CG","GG – reduziert"],
+  txt:["Normaler B12-Transport in die Zellen.","Leicht reduzierter Transport.","GG: weniger aktives B12 (Holo-TC) im Blut – B12 kann trotz normaler Aufnahme knapp werden."],
+  tip:"Holo-TC statt nur Serum-B12 messen lassen; bei pflanzenbasierter Ernährung supplementieren."},
+ {rs:"rs7501331",gene:"BCMO1",name:"Beta-Carotin → Vitamin A",cat:"ernaehrung",eff:"T",oth:"C",lv:["plus","neutral","watch"],tag:["CC – normal","CT","TT – reduziert"],
+  txt:["Normale Umwandlung von Beta-Carotin (Karotten, Süßkartoffel) in Vitamin A.","Etwas reduzierte Umwandlung.","Deutlich reduzierte Umwandlung – tierische Vitamin-A-Quellen wichtiger."],tip:""},
+ {rs:"rs33972313",gene:"SLC23A1",name:"Vitamin-C-Aufnahme",cat:"ernaehrung",eff:"T",oth:"C",lv:["plus","watch","watch"],tag:["CC – normal","CT","TT"],
+  txt:["Normale Vitamin-C-Aufnahme aus der Nahrung.","Niedrigere Vitamin-C-Spiegel möglich.","Deutlich niedrigere Vitamin-C-Spiegel möglich."],tip:""},
+ {rs:"rs7946",gene:"PEMT",name:"Cholin-Bedarf",cat:"ernaehrung",eff:"T",oth:"C",lv:["plus","neutral","watch"],tag:["CC – normal","CT","TT – erhöht"],
+  txt:["Normale körpereigene Cholin-Bildung.","Leicht reduzierte Eigenbildung.","Reduzierte Eigenbildung – höherer Cholin-Bedarf (Eier, Leber)."],tip:""},
+ {rs:"rs5882",gene:"CETP",name:"HDL-Cholesterin (I405V)",cat:"herz",eff:"G",oth:"A",lv:["neutral","plus","plus"],tag:["Ile/Ile","Ile/Val","Val/Val"],
+  txt:["Häufigster Typ – durchschnittliches HDL.","Ein Val-Allel: tendenziell höheres HDL.","Val/Val: höheres HDL, in Studien mit Langlebigkeit assoziiert."],tip:"Ausdauertraining ist der stärkste natürliche HDL-Booster."},
+ {rs:"rs1801260",gene:"CLOCK",name:"Chronotyp (3111T/C)",cat:"kopf",eff:"G",oth:"A",lv:["neutral","type","type"],tag:["Kein Abend-Allel","Leichte Abend-Tendenz","Abend-Typ"],
+  txt:["Kein CLOCK-Allel für Abend-Präferenz – Chronotyp eher durch andere Faktoren bestimmt.","Ein Allel mit Tendenz zu späterem Schlafrhythmus.","Ausgeprägtere Abend-Präferenz und kürzerer Schlaf."],
+  tip:"Konstante Schlafenszeiten sind wichtiger als der Typ selbst."},
+
+ {rs:"rs10757274",gene:"9p21",name:"Herzkranzgefäße",cat:"herz",eff:"G",oth:"A",lv:["plus","neutral","watch"],tag:["AA","AG","GG"],
+  txt:["Kein 9p21-Risikoallel.","Ein Risikoallel: ~1,2× KHK-Risiko.","Zwei Risikoallele: ~1,4× KHK-Risiko – Lebensstil wirkt hier stark."],
+  tip:"Regelmäßiger Sport gleicht das genetische Herzrisiko großteils aus."},
+ {rs:"rs1800562",gene:"HFE",name:"Eisenspeicher (C282Y)",cat:"herz",eff:"A",oth:"G",lv:["plus","neutral","watch"],tag:["Normal","Träger","Homozygot"],
+  txt:["Kein Hämochromatose-Allel.","Träger: leicht höhere Eisenaufnahme – meist unproblematisch.","Hämochromatose-Risiko – Ferritin & Transferrinsättigung prüfen lassen."],
+  tip:"Kein Eisen supplementieren ohne Blutwerte."},
+ {rs:"rs1799945",gene:"HFE",name:"Eisenspeicher (H63D)",cat:"herz",eff:"G",oth:"C",lv:["plus","neutral","neutral"],tag:["Normal","Träger","Homozygot"],
+  txt:["Normal.","Träger: leicht höhere Eisenwerte.","Etwas höhere Eisenwerte – selten klinisch relevant."],tip:""},
+ {rs:"rs6025",gene:"F5",name:"Faktor-V-Leiden (Thrombose)",cat:"herz",eff:"T",oth:"C",lv:["plus","watch","watch"],tag:["Normal","Heterozygot","Homozygot"],
+  txt:["Keine Faktor-V-Leiden-Mutation.","Heterozygot: ~5× Thromboserisiko – wichtig bei Langstreckenflügen, Pille, OPs.","Homozygot: stark erhöhtes Thromboserisiko – ärztlich abklären."],
+  tip:"Vor OPs oder Langstreckenflügen Arzt informieren."},
+ {rs:"rs1799963",gene:"F2",name:"Prothrombin (Thrombose)",cat:"herz",eff:"A",oth:"G",lv:["plus","watch","watch"],tag:["Normal","Heterozygot","Homozygot"],
+  txt:["Keine Prothrombin-Mutation.","Heterozygot: ~3× Thromboserisiko.","Homozygot: deutlich erhöhtes Risiko – ärztlich abklären."],tip:"Vor OPs oder Langstreckenflügen Arzt informieren."},
+
+ {rs:"rs4363657",gene:"SLCO1B1",name:"Statin-Verträglichkeit",cat:"medis",eff:"C",oth:"T",lv:["plus","neutral","watch"],tag:["Normal","Mittel","Erhöht"],
+  txt:["Normales Risiko für Statin-Muskelbeschwerden.","Etwas erhöhtes Myopathie-Risiko bei Simvastatin.","Deutlich erhöhtes Risiko für Muskelschmerzen unter Simvastatin."],tip:"Bei Statin-Verschreibung erwähnen."},
+ {rs:"rs4244285",gene:"CYP2C19",name:"Medikamenten-Abbau (*2)",cat:"medis",eff:"A",oth:"G",lv:["plus","neutral","watch"],tag:["Normal","Intermediär","Langsam"],
+  txt:["Normaler Metabolisierer (z. B. Clopidogrel, PPI).","Intermediärer Metabolisierer.","Langsamer Metabolisierer – manche Medikamente wirken anders."],tip:"Bei Clopidogrel-Verschreibung erwähnen."},
+];
+
+const CAT = {
+  kraft:{l:"Kraft & Ausdauer",c:"#E879F9"}, verletzung:{l:"Regeneration & Sehnen",c:"#22D3EE"}, kopf:{l:"Kopf, Stress & Koffein",c:"#FBBF24"},
+  ernaehrung:{l:"Ernährung & Stoffwechsel",c:"#A3E635"}, herz:{l:"Herz, Blut & Eisen",c:"#FB7185"}, medis:{l:"Medikamente",c:"#94A3B8"} };
+const LV = {plus:"Vorteil",type:"Typ-Merkmal",neutral:"Neutral",watch:"Beachten"};
+// Evidence per marker (3 = strong replicated GWAS/clinical, 2 = repeated studies, 1 = small or mixed studies)
+const EV = Object.assign({},
+  ...["rs4988235","rs6025","rs1799963","rs1800562","rs4244285","rs4363657","rs4149056","rs12255372","rs7903146","rs17817449","rs9939609","rs10757274","rs2187668","rs1229984","rs2231142","rs1801133"].map(r=>({[r]:3})),
+  ...["rs1815739","rs4343","rs8192678","rs4680","rs2472297","rs762551","rs4588","rs174537","rs17782313","rs1801282","rs1801198","rs7501331","rs33972313","rs17602729","rs12722","rs5882","rs1799945","rs601338","rs5751876"].map(r=>({[r]:2})));
+const EVL = ["","schwach","mittel","stark"];
+// Health findings that never appear in showcase frames or unblurred in privacy mode
+const SENS_RS = new Set(["rs12255372","rs7903146","rs2187668","rs1801133","rs1801131","rs2231142","rs1801198","rs1229984"]);
+const SAY = {
+  rs1815739:["Schnelle Muskelfasern: Ausdauer-Typ","Schnelle Muskelfasern: Allrounder","Schnelle Muskelfasern: Power-Typ"],
+  rs8192678:["Mitochondrien-Neubildung: stark","Mitochondrien-Neubildung: mittel","Ausdauer-Anpassung: braucht mehr Reiz"],
+  rs4880:["Mitochondrien-Schutz: Standard","Mitochondrien-Schutz: gemischt","Mitochondrien-Schutz: effizient"],
+  rs17602729:["Muskel-Energie: normal","Muskel-Energie: ein Defekt-Allel","Muskel-Energie: Enzymmangel möglich"],
+  rs1800629:["Entzündungsneigung: eher niedrig","Entzündungsneigung: leicht erhöht","Entzündungsneigung: erhöht"],
+  rs4680:["Unter Druck: Warrior-Typ","Unter Druck: ausgewogen","Unter Druck: Worrier-Typ"],
+  rs2472297:["Koffein: flutet schnell ab","Koffein: wird zügig abgebaut","Koffein: wirkt eher länger nach"],
+  rs4988235:["Milch: wahrscheinlich schlecht verträglich","Milch: verträgst du wahrscheinlich","Milch: verträgst du wahrscheinlich"],
+  rs17817449:["Appetit-Gen FTO: kein Risikoallel","Appetit-Gen FTO: ein Risikoallel","Appetit-Gen FTO: zwei Risikoallele"],
+  rs1801198:["Vitamin B12: Transport normal","Vitamin B12: Transport leicht gebremst","Vitamin B12: Transport eher gebremst"],
+  rs4588:["Vitamin D: Transport normal","Vitamin D: Spiegel eher etwas niedriger","Vitamin D: Spiegel eher niedriger"],
+  rs12255372:["Blutzucker-Gen: kein Risikoallel","Blutzucker-Gen: ein Risikoallel","Blutzucker-Gen: zwei Risikoallele"],
+  rs1049434:["Laktat-Abtransport: schnell","Laktat-Abtransport: gemischt","Laktat-Abtransport: langsamer"],
+  rs699:["Angiotensinogen: Ausdauer-Typ","Angiotensinogen: Mischtyp","Angiotensinogen: Kraft-Typ"],
+};
+const HIGHLIGHTS = ["rs1815739","rs8192678","rs4880","rs17602729","rs4680","rs2472297","rs4988235","rs17817449"];
+const ACTN3_FREQ = [18,51,31]; // approx. % of Europeans with XX / RX / RR
+
+const COMP = {A:"T",T:"A",C:"G",G:"C"};
+function call(m, g){
+  if (!g || g.includes("-") || g.length!==2) return [null, g];
+  const ok = s => [...s].every(c=>c===m.eff||c===m.oth);
+  if (!ok(g)) {
+    const flip = [...g].map(c=>COMP[c]).join("");
+    if (COMP[m.eff]===m.oth || !ok(flip)) return [null, g];
+    g = flip;  // reported on the other strand
+  }
+  return [[...g].filter(c=>c===m.eff).length, g];
+}
+/* ---------- Helix (canvas 2D, pseudo-3D) ---------- */
+const helices = [];
+function addHelix(cv, o={}){ helices.push({cv, ctx:cv.getContext("2d"), tilt:o.tilt??-0.32, pairs:o.pairs??44, speed:o.speed??1}); }
+const PAIRS = ["AT","TA","GC","CG"], BC = {A:"#22D3EE",T:"#E879F9",G:"#A3E635",C:"#FBBF24"};
+const seq = Array.from({length:60},(_,i)=>PAIRS[(i*7+(i>>2))%4]);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function drawHelix(h, t){
+  const {cv, ctx} = h, dpr = Math.min(2, devicePixelRatio||1);
+  const w = cv.clientWidth, hh = cv.clientHeight; if(!w||!hh) return;
+  if (cv.width!==Math.round(w*dpr)) { cv.width=Math.round(w*dpr); cv.height=Math.round(hh*dpr); }
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,hh);
+  ctx.save(); ctx.translate(w/2,hh/2); ctx.rotate(h.tilt);
+  const L = Math.hypot(w,hh)*0.92, n = h.pairs, step = L/n, R = Math.min(w,hh)*0.24;
+  const items = [];
+  for (let i=0;i<n;i++){
+    const y = -L/2 + i*step, a = i*0.42 + t*0.0006*h.speed, ca = Math.cos(a), sa = Math.sin(a), p = seq[i%seq.length];
+    items.push({z:0, k:"rung", y, x1:R*ca, x2:-R*ca, z1:sa, z2:-sa, p});
+    items.push({z:sa, k:"dot", x:R*ca, y, c:BC[p[0]]});
+    items.push({z:-sa, k:"dot", x:-R*ca, y, c:BC[p[1]]});
+    for (let q=1;q<4;q++){ // backbone between rungs
+      const b = a + q*0.42/4, yb = y + q*step/4, cb = Math.cos(b), sb = Math.sin(b);
+      items.push({z:sb, k:"bb", x:R*cb, y:yb}); items.push({z:-sb, k:"bb", x:-R*cb, y:yb});
+    }
+  }
+  items.sort((a,b)=>a.z-b.z);
+  for (const it of items){
+    if (it.k==="rung"){
+      const g = ctx.createLinearGradient(it.x1,it.y,it.x2,it.y);
+      g.addColorStop(0,BC[it.p[0]]); g.addColorStop(.5,"rgba(255,255,255,.15)"); g.addColorStop(1,BC[it.p[1]]);
+      ctx.globalAlpha = .45; ctx.strokeStyle = g; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(it.x1,it.y); ctx.lineTo(it.x2,it.y); ctx.stroke();
+    } else if (it.k==="bb"){
+      const d = (it.z+1)/2; ctx.globalAlpha = .15 + .55*d; ctx.fillStyle = "#CFE9FF";
+      ctx.beginPath(); ctx.arc(it.x,it.y, (1.2 + 1.8*d) * (R/140), 0, 7); ctx.fill();
+    } else {
+      const d = (it.z+1)/2; ctx.globalAlpha = .25 + .75*d;
+      ctx.shadowColor = it.c; ctx.shadowBlur = 8 + 18*d; ctx.fillStyle = it.c;
+      ctx.beginPath(); ctx.arc(it.x,it.y, 2.2 + 4.2*d * (R/140), 0, 7); ctx.fill(); ctx.shadowBlur = 0;
+    }
+  }
+  ctx.restore(); ctx.globalAlpha = 1;
+}
+function loop(t){
+  for (const h of helices){
+    const r = h.cv.getBoundingClientRect();
+    if (r.bottom>0 && r.top<innerHeight && r.width) drawHelix(h, reduce?0:t);
+  }
+  requestAnimationFrame(loop);
+}
+
+function boot(RAW){
+document.getElementById("prov").textContent = RAW.provider + " Rohdaten";
+let power=0, endurance=0;
+const markers = M.map(m=>{
+  const raw = RAW.geno[m.rs];
+  const [n, g] = call(m, raw && raw.g);
+  const r = {...m, geno:g, chr:raw?raw.c:null, pos:raw?raw.p:null, ev:EV[m.rs]||1, sens:m.cat==="herz"||m.cat==="medis"||SENS_RS.has(m.rs)};
+  if (n===null) return {...r, status: raw===undefined?"missing":"nocall"};
+  if (m.score){ power+=m.score[n][0]; endurance+=m.score[n][1]; }
+  return {...r,status:"ok",n,level:m.lv[n],tag:m.tag[n],txt:m.txt[n],say:SAY[m.rs]?SAY[m.rs][n]:null};
+});
+const ok = markers.filter(m=>m.status==="ok");
+const byRs = Object.fromEntries(markers.map(m=>[m.rs,m]));
+const pct = Math.round(100*power/Math.max(1,power+endurance));
+const verdict = pct>=65?"Power-Typ":pct<=35?"Ausdauer-Typ":pct>=55?"Allrounder mit Power-Tendenz":pct<=45?"Allrounder mit Ausdauer-Tendenz":"Ausgeglichener Allrounder";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => Number(n).toLocaleString("de-DE");
+const bases = g => g ? [...g].map(c=>`<span class="b b${"ACGT".includes(c)?c:""}">${esc(c)}</span>`).join("") : "–";
+const evHTML = e => `<span class="ev ${e===1?"weak":""}" title="Evidenz: ${EVL[e]}">${[1,2,3].map(i=>`<i class="${i<=e?"f":""}"></i>`).join("")} ${EVL[e]}</span>`;
+
+/* ---------- Count-up ---------- */
+function countUp(el, to, ms=1800){
+  const t0 = performance.now();
+  const f = t => { const p = Math.min(1,(t-t0)/ms), e = 1-Math.pow(1-p,4); el.textContent = fmt(Math.round(to*e)); if(p<1) requestAnimationFrame(f); };
+  reduce ? el.textContent = fmt(to) : requestAnimationFrame(f);
+}
+
+/* ---------- Radar ---------- */
+const LVS = {plus:1, neutral:.55, type:.6, watch:.25};
+function avgLv(rsList){ const v = rsList.map(r=>byRs[r]).filter(m=>m&&m.status==="ok").map(m=>LVS[m.level]); return v.length? v.reduce((a,b)=>a+b)/v.length : null; }
+const comt = byRs.rs4680;
+const AXES = [
+  ["Power", pct/100], ["Ausdauer", 1-pct/100],
+  ["Regeneration", avgLv(["rs4880","rs1800629","rs1800896"])],
+  ["Stoffwechsel", avgLv(["rs17817449","rs12255372","rs1801282","rs17782313","rs5082"])],
+  ["Nährstoffe", avgLv(["rs4588","rs1801198","rs7501331","rs33972313","rs7946","rs1801131","rs174537"])],
+  ["Stressresistenz", comt&&comt.status==="ok" ? [0.9,0.6,0.35][comt.n] : null],
+].filter(a=>a[1]!==null);
+function radarSVG(size, big){
+  const cx=size/2, cy=size/2, r=size*0.32, n=AXES.length, fs = big?54:13, padX = size*(big?0.27:0.16);
+  const pt = (i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*r*v, cy+Math.sin(a)*r*v];};
+  let s = `<svg viewBox="${-padX} 0 ${size+2*padX} ${size}" role="img" aria-label="Sport-Radar"><defs>
+    <linearGradient id="rg${size}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE" stop-opacity=".55"/><stop offset="1" stop-color="#E879F9" stop-opacity=".55"/></linearGradient>
+    <filter id="gl${size}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${big?10:5}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  for (const lv of [.25,.5,.75,1]) s += `<polygon points="${AXES.map((_,i)=>pt(i,lv).join(",")).join(" ")}" fill="none" stroke="rgba(255,255,255,${lv===1?.18:.08})"/>`;
+  AXES.forEach((a,i)=>{ const [x,y]=pt(i,1); s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.08)"/>`;
+    const [lx,ly]=pt(i,1.2); const anc = Math.abs(lx-cx)<5?"middle":lx>cx?"start":"end";
+    s+=`<text x="${lx}" y="${ly}" fill="#C5CBD8" font-size="${fs}" font-family="Space Grotesk,Inter,sans-serif" font-weight="600" text-anchor="${anc}" dominant-baseline="middle">${a[0]}</text>`;
+    if(!big){ s+=`<text x="${lx}" y="${ly+16}" fill="#5B647A" font-size="11" font-family="JetBrains Mono,monospace" text-anchor="${anc}" dominant-baseline="middle">${Math.round(a[1]*100)}</text>`; }
+  });
+  s += `<g class="rpoly" style="transform-origin:${cx}px ${cy}px"><polygon points="${AXES.map((a,i)=>pt(i,Math.max(.06,a[1])).join(",")).join(" ")}" fill="url(#rg${size})" stroke="#22D3EE" stroke-width="${big?5:2}" filter="url(#gl${size})"/>`;
+  AXES.forEach((a,i)=>{ const [x,y]=pt(i,Math.max(.06,a[1])); s+=`<circle cx="${x}" cy="${y}" r="${big?10:4}" fill="#fff" filter="url(#gl${size})"/>`; });
+  return s + `</g></svg>`;
+}
+
+/* ---------- Waffle: "Du bist einer von X" ---------- */
+function waffleSVG(k, col="#E879F9", cell=34){
+  const icon = `<symbol id="pp${cell}" viewBox="0 0 20 28"><circle cx="10" cy="6" r="5"/><path d="M2 27v-8a8 8 0 0 1 16 0v8z"/></symbol>`;
+  let s = `<svg viewBox="0 0 ${cell*10} ${cell*1.25*10}" class="wf"><defs>${icon}<filter id="wg${cell}"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  for (let i=0;i<100;i++){ const x=(i%10)*cell, y=Math.floor(i/10)*cell*1.25, on=i<k;
+    s += `<use href="#pp${cell}" x="${x+cell*.18}" y="${y+cell*.1}" width="${cell*.64}" height="${cell*.95}" fill="${on?col:"rgba(255,255,255,.12)"}" ${on?`filter="url(#wg${cell})"`:""} style="transition-delay:${i*12}ms"/>`; }
+  return s + `</svg>`;
+}
+
+/* ---------- Ideogram ---------- */
+const CHR = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X","Y"];
+const LEN = [249.3,243.2,198,191.2,180.9,171.1,159.1,146.4,141.2,135.5,135,133.9,115.2,107.3,102.5,90.4,81.2,78.1,59.1,63,48.1,51.3,155.3,59.4];
+const CEN = [125,93.3,91,50.4,48.4,61,59.9,45.6,49,40.2,53.7,35.8,17.9,17.6,19,36.6,24,17.2,26.5,27.5,13.2,14.7,60.6,12.5];
+function ideogramSVG(W, H, opt={}){
+  const top = opt.top??10, labH = opt.lab??26, fs = opt.fs??12, colW = W/24, bw = Math.min(colW*.42, opt.bw??18), sc = (H-top-labH)/249.3;
+  const maxBin = Math.max(...Object.values(RAW.bins).flat());
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chromosomen-Ideogramm"><defs>
+    <filter id="mg${W}" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="${opt.glow??3}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+  CHR.forEach((c,i)=>{ const x=i*colW+(colW-bw)/2; s+=`<clipPath id="cp${W}_${i}"><rect x="${x}" y="${top}" width="${bw}" height="${LEN[i]*sc}" rx="${bw/2}"/></clipPath>`; });
+  s += `</defs>`;
+  CHR.forEach((c,i)=>{
+    const x=i*colW+(colW-bw)/2, h=LEN[i]*sc, bins=RAW.bins[c]||[];
+    s += `<rect x="${x}" y="${top}" width="${bw}" height="${h}" rx="${bw/2}" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.14)"/>`;
+    s += `<g clip-path="url(#cp${W}_${i})">`;
+    bins.forEach((v,b)=>{ if(!v) return; const o=.06+.74*Math.pow(v/maxBin,.8); s+=`<rect x="${x}" y="${top+b*5*sc}" width="${bw}" height="${5*sc+.6}" fill="#22D3EE" opacity="${o.toFixed(2)}"/>`; });
+    s += `</g><rect x="${x-1}" y="${top+CEN[i]*sc-1.5}" width="${bw+2}" height="3" fill="#05070D"/>`;
+    s += `<text x="${i*colW+colW/2}" y="${H-labH/2+fs/3}" fill="#8E97AB" font-size="${fs}" font-family="JetBrains Mono,monospace" text-anchor="middle">${c}</text>`;
+  });
+  ok.filter(m=>!(opt.privacy&&m.sens)).forEach((m,j)=>{
+    const i = CHR.indexOf(m.chr); if(i<0) return;
+    const x = i*colW+colW/2, y = top + m.pos/1e6*sc;
+    s += `<circle class="mk" data-rs="${m.rs}" cx="${x}" cy="${y}" r="${opt.r??5}" fill="${CAT[m.cat].c}" stroke="#fff" stroke-width="${opt.r?2:1}" filter="url(#mg${W})"/>`;
+  });
+  return s + `</svg>`;
+}
+
+/* ---------- Render: hero ---------- */
+$("heroMuted").textContent = `${ok.length} Leistungs- und Gesundheitsgene auf deinem Chip gefunden und einzeln ausgewertet. Stand ${new Date(RAW.date).toLocaleDateString("de-DE")}.`;
+const actn = byRs.rs1815739;
+$("kpis").innerHTML = [
+  ["Muskelfaser-Typ", actn&&actn.status==="ok" ? actn.tag.replace(/ \(.*\)/,"") : "–", "var(--T)"],
+  ["Sport-Profil", verdict.replace("Ausgeglichener ",""), "var(--A)"],
+  ["Vorteile", ok.filter(m=>m.level==="plus").length, "var(--G)"],
+  ["Zum Beachten", ok.filter(m=>m.level==="watch").length, "var(--C)"],
+].map(([k,v,c])=>`<div class="kpi"><div class="k">${k}</div><div class="v" style="color:${c}">${esc(v)}</div></div>`).join("");
+countUp($("heroNum"), RAW.total);
+addHelix($("helix"));
+
+/* ---------- Render: highlights ---------- */
+$("hl").innerHTML = HIGHLIGHTS.map(r=>byRs[r]).filter(m=>m&&m.status==="ok").map((m,i)=>`
+  <div class="glass hcard rv ${m.sens?"priv":""}" style="--cc:${CAT[m.cat].c};transition-delay:${i*70}ms">
+    <div class="gt">${bases(m.geno)}</div>
+    <h3>${esc(m.say||m.name)}</h3>
+    <p>${esc(m.txt)}</p>
+    <div class="meta"><span class="pill" style="color:${CAT[m.cat].c}">${esc(m.gene)}</span><span class="lv lv-${m.level}">${LV[m.level]}</span>${evHTML(m.ev)}</div>
+  </div>`).join("");
+
+/* ---------- Render: sport ---------- */
+$("sportTitle").textContent = `Dein Sport-Profil: ${verdict}`;
+$("radar").innerHTML = `<div class="eyebrow" style="color:var(--muted)">Genetische Tendenz je Bereich (0–100)</div>` + radarSVG(460);
+$("verdict").textContent = verdict;
+$("scorefrom").textContent = "Berechnet aus " + M.filter(m=>m.score && byRs[m.rs].status==="ok").map(m=>m.gene).join(", ") + (mi => mi.length ? `. Nicht auf deinem Chip: ${mi.join(", ")}.` : ".")(M.filter(m=>m.score && byRs[m.rs].status!=="ok").map(m=>m.gene));
+$("sportchips").innerHTML = ok.filter(m=>m.cat==="kraft").map(m=>`<span class="lv lv-${m.level}">${esc(m.gene)}: ${esc(m.tag)}</span>`).join("");
+if (actn && actn.status==="ok"){
+  const k = ACTN3_FREQ[actn.n];
+  $("waffle").innerHTML = `<div class="eyebrow" style="color:var(--muted)">Du bist einer von ${k}</div>
+    <div style="font:700 22px var(--disp);margin:8px 0 14px">${k} von 100 Europäern teilen deinen ACTN3-Typ <span style="color:var(--T)">${esc(actn.tag.replace(/ \(.*\)/,""))}</span></div>
+    ${waffleSVG(k)}<div style="color:var(--faint);font-size:12px;margin-top:8px">Ungefähre Häufigkeit in europäischen Bevölkerungsstudien.</div>`;
+}
+
+/* ---------- Plan: recommendations derived from the results ---------- */
+// gene(): tailored to a genotype, gev = how well the gene link is supported. base(): applies to everyone, ev = evidence for the advice itself.
+const PCAT = {training:{l:"Training",c:"#E879F9"}, ernaehrung:{l:"Ernährung",c:"#A3E635"}, regeneration:{l:"Regeneration & Koffein",c:"#22D3EE"}, check:{l:"Check-ups beim Arzt",c:"#FBBF24"}};
+function buildPlan(){
+  const P = [], has = rs => { const m = byRs[rs]; return m && m.status==="ok" ? m : null; };
+  const gene = (cat, gev, ms, title, text) => P.push({cat, gev, ms:[].concat(ms), title, text, sens:[].concat(ms).some(m=>m.sens)});
+  const base = (cat, ev, title, text) => P.push({cat, ev, basis:true, title, text});
+  let m;
+
+  // Training
+  if (m = has("rs1815739")) {
+    if (m.n===2) gene("training",2,m,"Schwere, explosive Kraftreize priorisieren","2–3× pro Woche Grundübungen mit 3–6 Wiederholungen bei 80–90 % deiner Maximalkraft, dazu Sprints, Sprünge oder Würfe. RR-Träger zeigen in Studien tendenziell stärkere Kraft- und Schnellkraft-Zuwächse.");
+    else if (m.n===0) gene("training",2,m,"Mehr Volumen, kürzere Pausen","Krafttraining eher mit 8–15 Wiederholungen und 60–90 s Pause, dazu regelmäßige Ausdauerreize. XX-Typen haben nach exzentrischem Training oft mehr Muskelkater: plane 48–72 h Erholung für dieselbe Muskelgruppe ein.");
+    else gene("training",2,m,"Schwere und moderate Sätze mischen","Abwechselnd schwere Sätze (3–6 Wdh.) und muskelaufbauende Sätze (8–12 Wdh.). Der RX-Typ ist der klassische Allrounder.");
+  }
+  if (m = has("rs8192678")) {
+    if (m.n>=1) gene("training",1,m,"Ausdauer-Grundlage konsequent aufbauen","2–3× pro Woche 30–60 min locker in Zone 2 (du kannst dich noch unterhalten), dazu 1× pro Woche Intervalle. Die Ser-Variante von PGC-1α ist mit etwas geringerer aerober Anpassung verbunden. Regelmäßigkeit gleicht das aus.");
+    else gene("training",1,m,"Ausdauerreize zahlen sich bei dir aus","Die Gly/Gly-Variante ist mit guter Mitochondrien-Neubildung verbunden. 2–3 Ausdauereinheiten pro Woche bringen dir wahrscheinlich schnelle Fortschritte.");
+  }
+  if ((m = has("rs17602729")) && m.n>=1) gene("training",m.n===2?2:1,m,"Bei Intervallen großzügig pausieren","Bei HIIT mindestens doppelt so lange Pause wie Belastung, z. B. 30 s Sprint und 60–90 s Pause. Bei Krämpfen oder auffällig früher Ermüdung die Intensität senken.");
+  if ((m = has("rs1049434")) && m.n===2) gene("training",1,m,"Laktattoleranz gezielt trainieren","1× pro Woche Schwellen-Intervalle, z. B. 4 × 8 min knapp unter der Laktatschwelle mit 2 min Trabpause.");
+  if ((m = has("rs12722")) && m.n===2) gene("training",1,m,"Sehnen vorbereiten, Umfang langsam steigern","3× pro Woche exzentrisches Wadentraining (3 × 15 langsames Absenken) und Lauf- bzw. Sprungumfang um höchstens ca. 10 % pro Woche steigern.");
+  if (m = has("rs4680")) {
+    if (m.n===2) gene("training",1,m,"Feste Routine vor Wettkampf und Maximaltests","Immer gleicher Ablauf beim Aufwärmen und ruhige Atmung (4 s ein, 6 s aus) gegen Nervosität. Met/Met-Typen reagieren empfindlicher auf akuten Stress.");
+    else if (m.n===0) gene("training",1,m,"Druck nutzen: Tests und Challenges einbauen","Val/Val-Typen bleiben unter Stress eher leistungsfähig. Regelmäßige Leistungstests oder Wettkämpfe können dich zusätzlich pushen.");
+  }
+  if ((m = has("rs1801260")) && m.n>=1) gene("training",1,m,"Harte Einheiten eher später am Tag","Die CLOCK-Variante ist mit einer Abend-Tendenz verbunden. Intensives Training am Nachmittag oder frühen Abend passt wahrscheinlich besser zu dir.");
+  base("training",3,"Kraft und Ausdauer kombinieren","Mindestens 2× pro Woche Krafttraining für alle großen Muskelgruppen und 150 min moderate Ausdauer (WHO). Beides am selben Tag: Kraft zuerst oder 6 h Abstand.");
+  base("training",3,"Progressiv steigern","Gewicht, Wiederholungen oder Sätze schrittweise erhöhen und im Trainingsbuch festhalten. Der wichtigste Hebel für Fortschritt, unabhängig von den Genen.");
+
+  // Ernährung
+  base("ernaehrung",3,"Protein: 1,6–2,2 g pro kg Körpergewicht","Verteilt auf 3–5 Mahlzeiten mit je 0,3–0,4 g/kg. Damit holst du bei Krafttraining das Maximum an Muskelaufbau heraus.");
+  if (m = has("rs4988235")) {
+    if (m.n>=1) gene("ernaehrung",3,m,"Milchprodukte als Proteinquelle nutzen","Skyr, Quark, Hüttenkäse und Whey sind günstige, hochwertige Proteinquellen und für dich wahrscheinlich gut verträglich.");
+    else gene("ernaehrung",3,m,"Laktosefreie Proteinquellen bevorzugen","Whey-Isolat, laktosefreier Skyr, Hartkäse, Eier, Fisch und Hülsenfrüchte. Calcium dann gezielt aus Mineralwasser, Grünkohl oder angereicherten Drinks.");
+  }
+  const sat = [has("rs17817449"), has("rs17782313")].filter(x=>x && x.n>=1);
+  if (sat.length) gene("ernaehrung",2,sat,"Sättigung aktiv steuern","Jede Mahlzeit mit Protein und Gemüse beginnen und viel Volumen bei wenig Kalorien essen (Suppen, Salat, Beeren). Regelmäßige Bewegung schwächt den FTO-Effekt um rund 30 %.");
+  if ((m = has("rs12255372")) && m.n>=1) gene("ernaehrung",2,m,"Kohlenhydrate clever timen","Kohlenhydrate vor allem rund ums Training, Vollkorn statt Weißmehl und mindestens 30 g Ballaststoffe am Tag. Krafttraining verbessert die Blutzucker-Kontrolle zusätzlich.");
+  if ((m = has("rs5082")) && m.n===2) gene("ernaehrung",1,m,"Gesättigte Fette niedrig halten","Unter ca. 22 g pro Tag: Olivenöl, Nüsse und Fisch statt Butter, Sahne und fettem Fleisch. Bei GG-Trägern ist viel gesättigtes Fett in Studien mit mehr Gewichtszunahme verbunden.");
+  if ((m = has("rs174537")) && m.n>=1) gene("ernaehrung",2,m,"Omega-3 direkt aus Fisch oder Algenöl","Du wandelst pflanzliches Omega-3 (Leinöl, Walnüsse) wahrscheinlich schlechter in EPA/DHA um. 2× pro Woche fetter Fisch oder Algenöl mit EPA/DHA.");
+  else base("ernaehrung",2,"Omega-3: 2× pro Woche fetter Fisch","Lachs, Hering oder Makrele, alternativ Algenöl. Gut für Herz, Gehirn und Regeneration.");
+  if ((m = has("rs4588")) && m.n>=1) gene("ernaehrung",2,m,"Vitamin D im Winter im Blick behalten","Von Oktober bis März bildet die Haut in Deutschland kaum Vitamin D. Die DGE nennt 20 µg (800 IE) pro Tag, wenn die Eigenbildung fehlt. Am besten vorher den Wert messen lassen.");
+  if ((m = has("rs1801198")) && m.n===2) gene("ernaehrung",2,m,"B12-Quellen fest einplanen","Täglich B12-reiche Lebensmittel wie Fisch, Eier, Milchprodukte oder Fleisch. Bei pflanzlicher Ernährung B12 supplementieren.");
+  if ((m = has("rs1801133")) && m.n===2) gene("ernaehrung",2,m,"Folat-reich essen","Täglich Blattgemüse, Hülsenfrüchte oder Vollkorn, zusammen etwa 300 µg Folat (DGE). Vitamin B2 und B12 unterstützen den Folat-Stoffwechsel.");
+  if ((m = has("rs7501331")) && m.n>=1) gene("ernaehrung",m.n===2?2:1,m,"Vitamin A nicht nur aus Karotten","Du wandelst Beta-Carotin wahrscheinlich schlechter in Vitamin A um. Eier und Milchprodukte liefern fertiges Vitamin A.");
+  if ((m = has("rs33972313")) && m.n>=1) gene("ernaehrung",1,m,"Täglich Vitamin-C-Quellen","Paprika, Brokkoli, Zitrusfrüchte oder Beeren über den Tag verteilt.");
+  if ((m = has("rs7946")) && m.n===2) gene("ernaehrung",1,m,"Auf Cholin achten","Eier, Fisch, Fleisch und Sojaprodukte liefern Cholin. Dein Körper bildet davon wahrscheinlich weniger selbst.");
+  if ((m = has("rs2231142")) && m.n>=1) gene("ernaehrung",2,m,"Viel trinken, Fruktose und Alkohol begrenzen","Gerade bei viel Protein mindestens 2–3 l am Tag trinken. Softdrinks, Fruchtsaft und Bier erhöhen die Harnsäure zusätzlich.");
+  if ((m = has("rs1800562")) && m.n>=1) gene("ernaehrung",3,m,"Kein Eisen ohne Blutwerte supplementieren","Du nimmst Eisen wahrscheinlich etwas besser auf. Eisenpräparate nur nach Messung von Ferritin und Transferrinsättigung.");
+  base("ernaehrung",3,"Kreatin: 3–5 g pro Tag","Eines der am besten belegten Supplemente für Kraft, Schnellkraft und Muskelaufbau. Täglich nehmen, der Zeitpunkt ist egal.");
+
+  // Regeneration & Koffein
+  const cyp = has("rs762551"), cyp2 = has("rs2472297");
+  if (cyp) {
+    if (cyp.n===0) gene("regeneration",2,cyp,"Koffein als Trainings-Booster","3–6 mg pro kg Körpergewicht 30–60 min vor dem Training. Schnelle Abbauer profitieren in Studien am deutlichsten.");
+    else if (cyp.n===2) gene("regeneration",2,cyp,"Koffein sparsam und früh","Höchstens 1–2 mg pro kg und nur vormittags. Langsame Abbauer zeigen in Studien teils keinen oder sogar einen negativen Effekt auf die Leistung.");
+    else gene("regeneration",2,cyp,"Koffein moderat dosieren","2–3 mg pro kg 30–60 min vor dem Training, letzte Dosis mindestens 8 h vor dem Schlafen.");
+  } else if (cyp2) {
+    if (cyp2.n===0) gene("regeneration",1,cyp2,"Koffein vor dem Training nutzen","3–6 mg pro kg 30–60 min vorher. Dein Körper baut Koffein wahrscheinlich zügig ab.");
+    else gene("regeneration",1,cyp2,"Koffein moderat und nicht zu spät","2–3 mg pro kg 30–60 min vor dem Training, letzte Dosis mindestens 8 h vor dem Schlafen.");
+  } else base("regeneration",3,"Koffein vor dem Training","3–6 mg pro kg Körpergewicht 30–60 min vorher steigern nachweislich Kraft und Ausdauer.");
+  if ((m = has("rs5751876")) && m.n===2) gene("regeneration",1,m,"Koffein-Stopp am frühen Nachmittag","Du reagierst wahrscheinlich empfindlicher mit Unruhe und schlechterem Schlaf. Nach ca. 14 Uhr lieber koffeinfrei.");
+  const infl = [has("rs1800629"), has("rs1800896")].filter(x=>x && (x.rs==="rs1800629" ? x.n>=1 : x.n===2));
+  if (infl.length) gene("regeneration",1,infl,"Erholung fest einplanen","48 h Pause zwischen harten Einheiten für dieselbe Muskelgruppe und alle 4–6 Wochen eine leichtere Deload-Woche. Deine Entzündungs-Gene sprechen für etwas längere Erholung.");
+  base("regeneration",3,"7–9 Stunden Schlaf","Die wirksamste Regenerationsmaßnahme überhaupt: Weniger als 7 h verschlechtern Kraft, Ausdauer und Muskelaufbau.");
+  base("regeneration",2,"Keine Antioxidantien-Megadosen ums Training","Hochdosiertes Vitamin C (z. B. 1000 mg) und Vitamin E bremsen in Studien die Trainingsanpassung. Obst und Gemüse dagegen sind ideal.");
+
+  // Check-ups
+  if ((m = has("rs4588")) && m.n>=1) gene("check",2,m,"Vitamin D messen lassen (25-OH-D)","Am besten im Spätwinter. Dann weißt du, ob und wie viel du supplementieren solltest.");
+  if ((m = has("rs1801198")) && m.n===2) gene("check",2,m,"Aktives B12 messen lassen (Holo-TC)","Aussagekräftiger als der normale B12-Wert im Blut.");
+  if ((m = has("rs1801133")) && m.n===2) gene("check",2,m,"Homocystein messen lassen","Zeigt, ob dein Folat-Stoffwechsel gut versorgt ist.");
+  if ((m = has("rs1800562")) && m.n===2) gene("check",3,m,"Ferritin und Transferrinsättigung","Zur Abklärung einer erblichen Eisenspeicherkrankheit (Hämochromatose).");
+  if ((m = has("rs10757274")) && m.n>=1) gene("check",2,m,"Blutdruck und Blutfette regelmäßig checken","Dein 9p21-Risikoallel ist mit leicht erhöhtem Herzrisiko verbunden. Sport gleicht einen großen Teil davon aus.");
+  const thr = [has("rs6025"), has("rs1799963")].filter(x=>x && x.n>=1);
+  if (thr.length) gene("check",3,thr,"Thrombose-Veranlagung mit dem Arzt besprechen","Wichtig vor Operationen, bei hormoneller Verhütung und vor Langstreckenflügen.");
+  const med = [has("rs4363657"), has("rs4244285")].filter(x=>x && x.n>=1);
+  if (med.length) gene("check",2,med,"Bei neuen Medikamenten erwähnen","Deine Varianten können beeinflussen, wie gut du bestimmte Medikamente verträgst (z. B. Statine oder Clopidogrel).");
+  base("check",3,"Regelmäßiger Gesundheits-Check","Blutbild, Blutfette, Blutzucker und Blutdruck. Ab 35 übernehmen gesetzliche Krankenkassen alle 3 Jahre einen Check-up.");
+  return P;
+}
+const PLAN = buildPlan();
+const planEv = (label, e) => `<span class="ev ${e===1?"weak":""}">${label} ${[1,2,3].map(i=>`<i class="${i<=e?"f":""}"></i>`).join("")} ${EVL[e]}</span>`;
+const gTags = p => p.ms.map(m=>`<span class="gtag">${esc(m.gene)} ${esc(m.geno)}</span>`).join("");
+$("psum").innerHTML = `<b>${PLAN.filter(p=>!p.basis).length}</b> genbasierte und <b>${PLAN.filter(p=>p.basis).length}</b> Basis-Empfehlungen`;
+$("plan").innerHTML = Object.entries(PCAT).map(([k,o])=>{ const L = PLAN.filter(p=>p.cat===k).sort((a,b)=>(a.basis?1:0)-(b.basis?1:0));
+  return `<div class="pcol" style="--cc:${o.c}"><h3><span class="dot" style="background:${o.c};box-shadow:0 0 10px ${o.c}"></span>${o.l} <small>${L.length}</small></h3>` +
+    L.map(p=>`<div class="glass pcard rv ${p.basis?"basis":""} ${p.sens?"priv":""}">
+      <h4>${esc(p.title)}</h4><p>${esc(p.text)}</p>
+      <div class="pfoot">${p.basis ? `<span class="btag">Basis · gilt für alle</span>${planEv("Evidenz",p.ev)}` : `${gTags(p)}${planEv("Gen-Bezug",p.gev)}`}</div>
+    </div>`).join("") + `</div>`; }).join("");
+$("pOnly").onclick = ()=>{ document.body.classList.toggle("onlygene"); $("pOnly").classList.toggle("on"); };
+$("pTxt").onclick = ()=>{
+  const txt = `MEIN DNA-PLAN · ${new Date().toLocaleDateString("de-DE")}\nErstellt mit DNA//LAB aus ${RAW.provider}-Rohdaten. Keine medizinische Diagnose.\n` +
+    Object.entries(PCAT).map(([k,o])=>`\n== ${o.l.toUpperCase()} ==\n` + PLAN.filter(p=>p.cat===k).map(p=>
+      `\n• ${p.title}\n  ${p.text}\n  ${p.basis ? `Basis-Empfehlung, Evidenz: ${EVL[p.ev]}` : `Gen: ${p.ms.map(m=>`${m.gene} (${m.rs}) ${m.geno}`).join(", ")} · Gen-Bezug: ${EVL[p.gev]}`}`).join("\n")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+txt],{type:"text/plain"})); a.download = "mein-dna-plan.txt"; a.click();
+};
+
+/* ---------- Render: genome ---------- */
+$("ideo").innerHTML = ideogramSVG(1120, 430);
+const tip = $("tip");
+$("ideo").addEventListener("mousemove", e=>{
+  const rs = e.target.dataset && e.target.dataset.rs; if(!rs){ tip.style.opacity=0; return; }
+  const m = byRs[rs], priv = document.body.classList.contains("privacy") && m.sens;
+  tip.innerHTML = `<b style="color:${CAT[m.cat].c}">${esc(m.gene)}</b> · <span class="mono" style="color:var(--muted)">chr${m.chr}:${fmt(m.pos)}</span><br>${esc(m.say||m.name)}${priv?"":`<br><span class="mono">${m.rs} · ${bases(m.geno)}</span>`}`;
+  tip.style.left = Math.min(innerWidth-270, e.clientX+14)+"px"; tip.style.top = (e.clientY+14)+"px"; tip.style.opacity = 1;
+});
+$("ideo").addEventListener("mouseleave", ()=>tip.style.opacity=0);
+$("ideo").addEventListener("click", e=>{ const rs=e.target.dataset&&e.target.dataset.rs; if(rs){ $("xq").value=rs; renderX(); $("s-x").scrollIntoView({behavior:"smooth"}); } });
+
+const FP = [["A","Homozygot A",RAW.hom.A,"#22D3EE"],["T","Homozygot T",RAW.hom.T,"#E879F9"],["G","Homozygot G",RAW.hom.G,"#A3E635"],["C","Homozygot C",RAW.hom.C,"#FBBF24"],
+  ["het","Heterozygot",RAW.het,"#CBD5E1"],["nc","Kein Ergebnis",RAW.nocall+RAW.other,"#334155"]];
+$("fp").innerHTML = FP.map(f=>`<div data-w="${(100*f[2]/RAW.total).toFixed(2)}" title="${f[1]}: ${fmt(f[2])}" style="background:${f[3]};box-shadow:0 0 16px ${f[3]}55"></div>`).join("");
+$("fpl").innerHTML = FP.map(f=>`<div><span class="dot" style="background:${f[3]}"></span>${f[1]}<br><b>${(100*f[2]/RAW.total).toFixed(1).replace(".",",")} %</b> · ${fmt(f[2])}</div>`).join("");
+
+const LVORD = ["plus","type","neutral","watch"];
+const hmMax = Math.max(1,...Object.keys(CAT).flatMap(c=>LVORD.map(l=>ok.filter(m=>m.cat===c&&m.level===l).length)));
+$("hm").innerHTML = `<div></div>` + ["Vorteil","Typ","Neutral","Beachten"].map(h=>`<div class="h">${h}</div>`).join("") +
+  Object.entries(CAT).map(([c,o])=>`<div class="r"><span class="dot" style="background:${o.c};box-shadow:0 0 10px ${o.c}"></span>${o.l}</div>` +
+    LVORD.map(l=>{ const n = ok.filter(m=>m.cat===c&&m.level===l).length, a = n/hmMax;
+      return n ? `<div class="c" data-c="${c}" data-l="${l}" style="background:${o.c}${Math.round(20+a*120).toString(16).padStart(2,"0")};box-shadow:0 0 ${8+a*22}px ${o.c}${Math.round(a*110).toString(16).padStart(2,"0")};color:${a>.5?"#05070D":"#fff"}">${n}</div>`
+               : `<div class="c z">·</div>`; }).join("")).join("");
+$("hm").onclick = e=>{ const d=e.target.dataset; if(d.c){ cat=d.c; lvf=d.l; renderCards(); $("s-themes").scrollIntoView({behavior:"smooth"}); } };
+
+/* ---------- Render: theme cards ---------- */
+let cat="all", lvf="all";
+$("tabs").innerHTML = [["all","Alle","#E6EAF2"],...Object.entries(CAT).map(([k,o])=>[k,o.l,o.c])].map(([k,l,c])=>`<button class="tab" data-c="${k}" style="--tc:${c}">${l}</button>`).join("");
+$("tabs").onclick = e=>{ if(e.target.dataset.c){ cat=e.target.dataset.c; lvf="all"; renderCards(); } };
+function renderCards(){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.c===cat));
+  const inCat = markers.filter(m=>cat==="all"||m.cat===cat);
+  const list = inCat.filter(m=>m.status!=="missing"&&(lvf==="all"||m.level===lvf));
+  const miss = inCat.filter(m=>m.status==="missing");
+  $("missing").innerHTML = (lvf!=="all"?`Filter: <b>${LV[lvf]}</b> · <a href="#" id="clrlv" style="color:var(--A)">zurücksetzen</a><br>`:"") +
+    (miss.length ? `Nicht auf deinem Chip: ${miss.map(m=>`${esc(m.gene)} (${m.rs})`).join(", ")}` : "");
+  const c = $("clrlv"); if(c) c.onclick = e=>{ e.preventDefault(); lvf="all"; renderCards(); };
+  $("cards").innerHTML = list.map(m=> m.status!=="ok" ? `
+    <div class="glass card" style="--cc:${CAT[m.cat].c};opacity:.5"><div class="top"><div><h4>${esc(m.gene)}</h4><div class="sub">${m.rs}</div></div><span class="pill">kein Ergebnis</span></div><p>${esc(m.name)}</p></div>` : `
+    <div class="glass card ${m.sens?"priv":""}" style="--cc:${CAT[m.cat].c}">
+      <div class="top"><div><h4>${esc(m.say||m.name)}</h4><div class="sub">${esc(m.gene)} · ${m.rs}${m.say?" · "+esc(m.name):""}</div></div><span class="gt">${bases(m.geno)}</span></div>
+      <div class="meta" style="margin-top:2px"><span class="lv lv-${m.level}">${LV[m.level]} · ${esc(m.tag)}</span>${evHTML(m.ev)}</div>
+      <p>${esc(m.txt)}</p>
+      ${m.tip?`<div class="tipx"><b style="color:var(--text)">Praxis:</b> ${esc(m.tip)}</div>`:""}
+    </div>`).join("");
+}
+renderCards();
+
+/* ---------- Explorer ---------- */
+$("xc").innerHTML = `<option value="">Alle Kategorien</option>` + Object.entries(CAT).map(([k,o])=>`<option value="${k}">${o.l}</option>`).join("");
+function xRows(){
+  const q = $("xq").value.trim().toLowerCase(), c = $("xc").value, st = $("xs").value;
+  return markers.filter(m=>(!c||m.cat===c)&&(!st||(st==="ok"?m.status!=="missing":m.status==="missing"))&&
+    (!q||[m.gene,m.rs,m.name,m.tag,m.say,CAT[m.cat].l].join(" ").toLowerCase().includes(q)));
+}
+function renderX(){
+  $("xt").innerHTML = xRows().map(m=>`<tr>
+    <td><b style="color:${CAT[m.cat].c}">${esc(m.gene)}</b><div style="color:var(--faint);font-size:12px">${esc(m.name)}</div></td>
+    <td class="mono ${m.sens?"priv":""}">${m.rs}</td><td class="mono">${m.chr??"–"}</td><td class="mono num">${m.pos?fmt(m.pos):"–"}</td>
+    <td class="${m.sens?"priv":""}" style="letter-spacing:.08em">${m.status==="ok"?bases(m.geno):m.status==="nocall"?"--":"–"}</td>
+    <td class="${m.status==="ok"?"":"na"} ${m.sens?"priv":""}">${m.status==="ok"?`<span class="lv lv-${m.level}">${LV[m.level]}</span> ${esc(m.tag)}`:m.status==="missing"?"nicht auf Chip":"kein Ergebnis"}</td>
+    <td>${CAT[m.cat].l}</td><td>${evHTML(m.ev)}</td></tr>`).join("");
+}
+["xq","xc","xs"].forEach(id=>$(id).addEventListener("input",renderX));
+renderX();
+$("xcsv").onclick = ()=>{
+  const cols = ["Gen","rsID","Chromosom","Position","Genotyp","Status","Bewertung","Ergebnis","Erklärung","Kategorie","Evidenz"];
+  const rows = xRows().map(m=>[m.gene,m.rs,m.chr??"",m.pos??"",m.geno??"",m.status,m.level?LV[m.level]:"",m.tag??"",m.txt??"",CAT[m.cat].l,EVL[m.ev]]);
+  const csv = "﻿"+[cols,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(";")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = "dna-marker.csv"; a.click();
+};
+
+/* ---------- APOE (hidden until requested) ---------- */
+function apoe(){
+  const a=RAW.geno.rs429358&&RAW.geno.rs429358.g, b=RAW.geno.rs7412&&RAW.geno.rs7412.g;
+  if(b && !b.includes("-") && (!a || a.includes("-"))){
+    const e2=[...b].filter(c=>c==="T").length;
+    return {gt:e2?"e2-Träger, e4 unbekannt":"e4-Status unbekannt",raw:`rs7412: ${b} · rs429358: nicht auf Chip`,
+      txt:`Dein Chip enthält rs429358 nicht, deshalb lässt sich der e4-Status nicht bestimmen. Aus rs7412 ergibt sich: ${e2?"mindestens ein e2-Allel.":"kein e2-Allel, also e3/e3, e3/e4 oder e4/e4."} Für eine Klärung wäre ein ärztlicher APOE-Test nötig.`};
+  }
+  if(!a||!b||(a+b).includes("-")) return null;
+  const e4=[...a].filter(c=>c==="C").length, e2=[...b].filter(c=>c==="T").length;
+  if(e4+e2>2) return null;
+  const gt=[...Array(e2).fill("e2"),...Array(2-e4-e2).fill("e3"),...Array(e4).fill("e4")].join("/");
+  return {gt, raw:`rs429358: ${a} · rs7412: ${b}`, txt:"Bitte das Ergebnis mit ärztlicher oder humangenetischer Beratung einordnen. Ausdauersport, Schlaf, Blutdruck und mediterrane Ernährung wirken bei allen APOE-Typen schützend."};
+}
+const A = apoe();
+$("apoe").innerHTML = `<div class="veil"><div><div class="eyebrow" style="color:var(--T)">Sensibel</div><h3 style="font:700 20px var(--disp);margin:6px 0 4px">APOE: Cholesterin & Alzheimer-Veranlagung</h3>
+  <div style="color:var(--muted);font-size:14px">Bewusst ausgeblendet. Nur anzeigen, wenn du es wirklich wissen möchtest.</div></div><button class="btn" id="reveal">Ergebnis anzeigen</button></div>`;
+$("reveal").onclick = ()=>{
+  $("apoe").innerHTML = !A ? `<h3 style="font:700 20px var(--disp);margin:0">APOE</h3><p style="color:var(--muted)">Nicht bestimmbar.</p>` :
+   `<div class="eyebrow" style="color:var(--T)">APOE</div><div style="font:700 34px var(--disp);margin:6px 0">${esc(A.gt)}</div>
+    <div class="mono" style="color:var(--faint);font-size:12px">${esc(A.raw)}</div><p style="color:#C5CBD8;max-width:720px">${esc(A.txt)}</p>`;
+};
+
+/* ---------- Scroll reveal ---------- */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; e.target.classList.add("in");
+  if (e.target.querySelector("#pin")) $("pin").style.left = pct+"%";
+  if (e.target.querySelector("#fp")) document.querySelectorAll("#fp div").forEach(d=>d.style.width=d.dataset.w+"%");
+  io.unobserve(e.target); }), {threshold:.18});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+
+/* ---------- Privacy ---------- */
+function setPriv(on){ document.body.classList.toggle("privacy",on); $("privBtn").classList.toggle("on",on); }
+$("privBtn").onclick = ()=>setPriv(!document.body.classList.contains("privacy"));
+
+/* ---------- Auto-scroll tour (for screen recording) ---------- */
+let touring = false;
+function tour(){
+  if (touring) return stopTour();
+  touring = true; $("tourBtn").classList.add("on"); setPriv(true);
+  document.querySelectorAll(".rv").forEach(el=>el.classList.add("in")); $("pin").style.left=pct+"%";
+  document.querySelectorAll("#fp div").forEach(d=>d.style.width=d.dataset.w+"%");
+  scrollTo(0,0);
+  const stops = ["s-hero","s-hl","s-sport","s-plan","s-genome","s-themes","s-x"].map(id=>$(id).getBoundingClientRect().top+scrollY-64);
+  stops[0] = 0;
+  const hold = 1800, move = 2300, t0 = performance.now() + 1500; // hook: hold on the hero first
+  const ease = p => p<.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
+  const f = t => {
+    if (!touring) return;
+    const e = Math.max(0, t-t0), seg = Math.floor(e/(hold+move)), inSeg = e%(hold+move);
+    if (seg >= stops.length-1) { scrollTo(0, stops[stops.length-1]); setTimeout(stopTour, 1500); return; }
+    const p = inSeg<hold ? 0 : ease((inSeg-hold)/move);
+    scrollTo(0, stops[seg] + (stops[seg+1]-stops[seg])*p);
+    requestAnimationFrame(f);
+  };
+  requestAnimationFrame(f);
+}
+function stopTour(){ touring=false; $("tourBtn").classList.remove("on"); }
+$("tourBtn").onclick = tour;
+["wheel","touchstart","keydown"].forEach(ev=>addEventListener(ev,()=>{ if(touring) stopTour(); },{passive:true}));
+
+/* ---------- Showcase frames (1080×1350 / 1080×1920) ---------- */
+let fmtSel = "45", fi = 0;
+const F = () => fmtSel==="45" ? {h:1350, t:100, b:110, l:90, r:90} : {h:1920, t:250, b:350, l:80, r:120};
+const safe = b => fmtSel==="916" ? `<div class="safe" style="top:0;height:250px"></div><div class="safe" style="bottom:0;height:350px"></div><div class="safe" style="top:250px;bottom:350px;left:auto;width:120px"></div>` : "";
+function frameShell(inner, g){
+  const handle = esc($("handle").value.trim());
+  const reel = fmtSel==="916"; // keep the disclaimer inside the 9:16 safe zone
+  return `<div class="fin" style="top:${g.t}px;bottom:${reel?g.b+70:g.b}px;left:${g.l}px;right:${g.r}px">${inner}</div>
+    <div class="fsmall" style="left:${g.l}px;bottom:${reel?g.b+10:g.b-50}px">Consumer-DNA-Test · keine medizinische Diagnose</div>
+    ${handle?`<div class="fhandle" style="right:${g.r}px;top:${g.t-60}px">${handle}</div>`:""}${safe()}`;
+}
+const tm = (m,a)=> m&&m.status==="ok" ? a(m) : "";
+const FRAMES = [
+  g => `<canvas class="fhx" style="position:absolute;inset:0;width:100%;height:100%;opacity:.9"></canvas>` + frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--A)">MEINE DNA</div>
+      <div style="font:700 ${fmtSel==="45"?178:190}px/.95 var(--disp);letter-spacing:-.05em;margin:24px 0 18px;background:linear-gradient(100deg,#fff 30%,#22D3EE 60%,#E879F9);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 40px rgba(34,211,238,.35))">${fmt(RAW.total)}</div>
+      <p class="fh" style="font-size:64px">Varianten analysiert.</p>
+      <p class="fl" style="margin-top:22px">Das sagen meine Gene über Sport & Ernährung.</p>`, g),
+  g => tm(actn, m => frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--T)">ACTN3 · SCHNELLKRAFT-GEN</div>
+      <p class="fh" style="margin:22px 0 10px">${esc(m.say)}</p>
+      <div style="font-size:150px;line-height:1;letter-spacing:.08em;margin:10px 0 30px">${bases(m.geno)}</div>
+      <div style="display:flex;gap:44px;align-items:center"><div style="flex:none;width:${fmtSel==="45"?400:440}px">${waffleSVG(ACTN3_FREQ[m.n],"#E879F9",40)}</div>
+      <p class="fl">Nur ca. <b style="color:var(--T)">${ACTN3_FREQ[m.n]} von 100</b> Europäern haben diesen Typ.</p></div>`, g)),
+  g => frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--A)">MEIN SPORT-PROFIL</div>
+      <p class="fh" style="margin:22px 0 10px">${esc(verdict)}</p>
+      <div style="width:${fmtSel==="45"?820:860}px;margin:0 auto">${radarSVG(900,true)}</div>`, g),
+  g => { const top = PLAN.filter(p=>!p.basis && !p.sens && p.cat!=="check").sort((a,b)=>b.gev-a.gev).slice(0,3);
+    return top.length && frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--G)">MEIN DNA-PLAN</div>
+      <p class="fh" style="margin:22px 0 46px">Das empfehlen meine Gene</p>
+      ${top.map(p=>`<div style="display:flex;gap:26px;align-items:flex-start;margin-bottom:40px">
+        <div style="flex:none;width:18px;height:18px;margin-top:16px;border-radius:50%;background:${PCAT[p.cat].c};box-shadow:0 0 22px ${PCAT[p.cat].c}"></div>
+        <div><div style="font:700 48px/1.15 var(--disp)">${esc(p.title)}</div>
+        <div style="font:600 30px var(--mono);color:${PCAT[p.cat].c};margin-top:10px">${p.ms.map(m=>esc(m.gene)).join(" · ")}</div></div></div>`).join("")}`, g); },
+  g => tm(byRs.rs2472297, m => frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--C)">CYP1A2 · KOFFEIN-GEN</div>
+      <p class="fh" style="margin:22px 0 30px">${esc(m.say)}</p>
+      <div style="font-size:220px;line-height:1;letter-spacing:.08em">${bases(m.geno)}</div>
+      <p class="fl" style="margin-top:40px">Kaffee lieber vor dem Training, nicht am Abend.</p>`, g)),
+  g => tm(byRs.rs4988235, m => frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--G)">LCT · LAKTOSE-GEN</div>
+      <p class="fh" style="margin:22px 0 30px">${esc(m.say)}</p>
+      <div style="font-size:220px;line-height:1;letter-spacing:.08em">${bases(m.geno)}</div>
+      <p class="fl" style="margin-top:40px">${m.n>0?"Quark, Skyr & Whey: kein Problem.":"Laktosefreie Proteinquellen bevorzugen."}</p>`, g)),
+  g => frameShell(`
+      <div style="font:600 30px var(--mono);letter-spacing:.2em;color:var(--G)">MEIN GENOM</div>
+      <p class="fh" style="margin:22px 0 30px">${ok.filter(m=>!m.sens).length} Gene. 24 Chromosomen.</p>
+      ${ideogramSVG(fmtSel==="45"?900:880, fmtSel==="45"?720:900, {bw:22, r:9, glow:6, fs:22, lab:40, privacy:true})}`, g),
+  g => `<canvas class="fhx" style="position:absolute;inset:0;width:100%;height:100%;opacity:.45"></canvas>` + frameShell(`
+      <p class="fh" style="font-size:96px">Was steckt in<br><span style="color:var(--A);text-shadow:0 0 30px rgba(34,211,238,.6)">deiner</span> DNA?</p>
+      <p class="fl" style="margin-top:34px">Gene sind Tendenzen, kein Schicksal.<br>Training schlägt Genetik.</p>`, g),
+].filter(f=>f(F()));
+function renderFrame(){
+  const g = F(), st = $("stage"); helices.splice(1);
+  st.innerHTML = `<div class="frame" id="fr" style="height:${g.h}px">${FRAMES[fi](g)}</div><div class="scnav">Frame ${fi+1} / ${FRAMES.length} · Pfeiltasten zum Wechseln · 1080×${g.h}</div>`;
+  st.querySelectorAll(".fhx").forEach(c=>addHelix(c,{tilt:-0.5,pairs:30}));
+  st.querySelectorAll(".in, .rv, .wf, .rpoly").forEach(e=>e.classList.add("in")); $("fr").classList.add("in");
+  fitFrame();
+}
+function fitFrame(){ const fr=$("fr"); if(!fr) return; const st=$("stage"), s=Math.min((st.clientWidth-32)/1080,(st.clientHeight-48)/F().h);
+  fr.style.transform = `translate(-50%,-50%) scale(${s})`; }
+function openSC(){ $("sc").classList.add("open"); setPriv(true); renderFrame(); }
+$("scBtn").onclick = openSC;
+$("scClose").onclick = ()=>{ $("sc").classList.remove("open"); helices.splice(1); };
+document.querySelectorAll("[data-fmt]").forEach(b=>b.onclick=()=>{ fmtSel=b.dataset.fmt; document.querySelectorAll("[data-fmt]").forEach(x=>x.classList.toggle("on",x===b)); renderFrame(); });
+$("safeBtn").onclick = ()=>{ $("stage").classList.toggle("showsafe"); $("safeBtn").classList.toggle("on"); };
+$("prevF").onclick = ()=>{ fi=(fi-1+FRAMES.length)%FRAMES.length; renderFrame(); };
+$("nextF").onclick = ()=>{ fi=(fi+1)%FRAMES.length; renderFrame(); };
+$("handle").oninput = renderFrame;
+addEventListener("keydown", e=>{ if(!$("sc").classList.contains("open")||e.target.tagName==="INPUT") return;
+  if(e.key==="ArrowRight") $("nextF").click(); if(e.key==="ArrowLeft") $("prevF").click(); if(e.key==="Escape") $("scClose").click(); });
+addEventListener("resize", fitFrame);
+if (new URLSearchParams(location.search).get("showcase")) openSC();
+
+}
+/* ---------- Upload flow ---------- */
+addHelix(document.getElementById("upHelix"), {tilt:-0.55, pairs:40});
+requestAnimationFrame(loop);
+const WANT = new Set([...M.map(m=>m.rs), "rs429358", "rs7412"]);
+const upmsg = document.getElementById("upmsg");
+async function handleFile(file){
+  if (!file) return;
+  upmsg.className = "upmsg"; upmsg.textContent = `Lese ${file.name} …`;
+  try {
+    await new Promise(r=>setTimeout(r,30));
+    const text = await readFileText(file);
+    upmsg.textContent = "Werte deine DNA aus …";
+    await new Promise(r=>setTimeout(r,30));
+    const raw = parseRaw(text, WANT);
+    helices.length = 0;
+    document.body.classList.add("ready"); scrollTo(0,0);
+    boot(raw);
+  } catch (e) {
+    upmsg.className = "upmsg err";
+    upmsg.textContent = e.message || "Die Datei konnte nicht gelesen werden.";
+  }
+}
+const drop = document.getElementById("drop");
+document.getElementById("file").addEventListener("change", e=>handleFile(e.target.files[0]));
+["dragenter","dragover"].forEach(ev=>addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>addEventListener(ev, e=>{ e.preventDefault(); if(ev==="drop"||e.target===drop) drop.classList.remove("over"); }));
+addEventListener("drop", e=>handleFile(e.dataTransfer.files[0]));
+</script>
+</body>
+</html>
